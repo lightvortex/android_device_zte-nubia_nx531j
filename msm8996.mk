@@ -432,3 +432,8 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_BOOT_JARS += \
     WfdCommon
+
+# IR
+PRODUCT_PACKAGES += \
+    libserial_port \
+    nubia_IRControl3
