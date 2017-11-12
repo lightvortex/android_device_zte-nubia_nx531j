@@ -159,6 +159,7 @@ PRODUCT_PACKAGES += \
     init.qcom.rc \
     init.qcom.sh \
     init.qcom.power.rc \
+    init.safailnet.rc \
     init.power.sh \
     init.qcom.usb.rc \
     init.target.rc \
@@ -316,7 +317,7 @@ PRODUCT_COPY_FILES += \
 
 # QMI
 PRODUCT_PACKAGES += \
-    libjson
+     libjson
 
 # RCS
 PRODUCT_PACKAGES += \
