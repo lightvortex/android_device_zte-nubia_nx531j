@@ -86,7 +86,9 @@ endif
 LOCAL_CFLAGS += -Wall -Wextra -Werror
 
 LOCAL_SHARED_LIBRARIES:= \
-         libcutils libdl libmmcamera_interface
+         libcutils libdl libmmcamera_interface liblog libutils 
+         
+LOCAL_HEADER_LIBRARIES := libsystem_headers libhardware_headers
 
 LOCAL_MODULE_TAGS := optional
 
@@ -181,7 +183,9 @@ endif
 LOCAL_CFLAGS += -Wall -Wextra -Werror
 
 LOCAL_SHARED_LIBRARIES:= \
-         libcutils libdl libmmcamera_interface
+         libcutils libdl libmmcamera_interface liblog libutils
+         
+LOCAL_HEADER_LIBRARIES := libsystem_headers libhardware_headers
 
 LOCAL_MODULE_TAGS := optional
 

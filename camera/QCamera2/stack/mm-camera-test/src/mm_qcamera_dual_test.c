@@ -29,6 +29,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // System dependencies
 #include <pthread.h>
+#include <unistd.h> // for write, read, usleep, pipe, ...
 
 // Camera dependencies
 #include "mm_qcamera_unit_test.h"

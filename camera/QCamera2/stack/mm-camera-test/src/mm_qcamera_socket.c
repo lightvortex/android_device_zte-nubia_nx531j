@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <sys/socket.h>
 #include <fcntl.h>
+#include <unistd.h> // for write, read, usleep, pipe, ...
 
 // Camera dependencies
 #include "mm_qcamera_socket.h"

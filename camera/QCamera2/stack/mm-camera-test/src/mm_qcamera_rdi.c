@@ -29,6 +29,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // System dependencies
 #include <fcntl.h>
+#include <unistd.h> // for write, read, usleep, pipe, ...
 
 // Camera dependencies
 #include "mm_qcamera_app.h"
