@@ -426,14 +426,18 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/wifi/WCNSS_qcom_cfg.ini:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/WCNSS_qcom_cfg.ini
 
+# IR
+PRODUCT_PACKAGES += \
+    libserial_port \
+    nubia_IRControl3
+
 # WiFi Display
 PRODUCT_PACKAGES += \
+    libaacwrapper \
     libnl
 
 PRODUCT_BOOT_JARS += \
     WfdCommon
 
-# IR
-PRODUCT_PACKAGES += \
-    libserial_port \
-    nubia_IRControl3
+    libnl
+
