@@ -119,7 +119,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Media
 PRODUCT_PROPERTY_OVERRIDES += \
     vendor.vidc.enc.disable.pq=true \
-    debug.stagefright.ccodec=0 \
+    debug.media.codec2=2 \
     vidc.enc.dcvs.extra-buff-count=2
 
 
