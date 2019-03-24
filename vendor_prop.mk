@@ -17,7 +17,7 @@
 # Audio
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.af.client_heap_size_kbyte=7168 \
-    af.fast_track_multiplier=2 \
+    af.fast_track_multiplier=1 \
     audio.deep_buffer.media=true \
     audio.offload.min.duration.secs=15 \
     audio.offload.video=true \
@@ -27,25 +27,22 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.vendor.bt.enable.splita2dp=false \
     ro.config.media_vol_steps=25 \
     ro.config.vc_call_vol_steps=7 \
-    ro.vendor.audio.sdk.fluencetype=none \
+    ro.vendor.audio.sdk.fluencetype=fluence \
     ro.vendor.audio.sdk.ssr=false \
-    vendor.audio.dolby.ds2.enabled=true \
-    vendor.audio.dolby.ds2.hardbypass=true \
+    vendor.audio.dolby.ds2.enabled=false \
+    vendor.audio.dolby.ds2.hardbypass=false \
     vendor.audio_hal.period_size=192 \
     vendor.audio.hw.aac.encoder=true \
     vendor.audio.offload.buffer.size.kb=64 \
     vendor.audio.offload.gapless.enabled=true \
     vendor.audio.offload.multiaac.enable=true \
     vendor.audio.offload.multiple.enabled=false \
-    vendor.audio.offload.passthrough=true \
-    vendor.audio.offload.track.enable=false \
+    vendor.audio.offload.passthrough=false \
+    vendor.audio.offload.track.enable=true \
     vendor.audio.parser.ip.buffer.size=262144 \
     vendor.audio.safx.pbe.enabled=true \
     vendor.audio.tunnel.encode=false \
     vendor.voice.path.for.pcm.voip=true
-
-PRODUCT_PROPERTY_OVERRIDES += \
-    vendor.audio.dmid=3067269873
 
 # Bluetooth
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -61,11 +58,14 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Camera
 PRODUCT_PROPERTY_OVERRIDES += \
+    vendor.camera.aux.packagelist=com.android.camera,org.lineageos.snap,com.google.android.GoogleCameraTele \
+    vendor.camera.hal1.packagelist=com.whatsapp,com.intsig.camscanner \
     persist.ts.postmakeup=false \
     persist.ts.rtmakeup=false \
     persist.camera.stats.test=5 \
     camera.disable_zsl_mode=1 \
     persist.camera.gyro.disable=0
+
 
 # CNE
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -80,7 +80,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Display
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.qualcomm.cabl=0 \
+    ro.vendor.display.cabl=0
 
 # DRM
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -93,7 +93,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Graphics
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.egl.hw=1 \
-    debug.gralloc.enable_fb_ubwc=1 \
     debug.sf.hw=1 \
     debug.sf.latch_unsignaled=1 \
     dev.pm.dyn_samplingrate=1 \
@@ -102,10 +101,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.sys.wfd.virtual=0 \
     ro.opengles.version=196610 \
     ro.sf.lcd_density=480 \
-    sdm.debug.disable_rotator_split=1 \
-    sdm.debug.disable_skip_validate=1 \
-    sdm.perf_hint_window=50 \
-    vendor.display.enable_default_color_mode=1
+    vendor.display.disable_rotator_split=1 \
+    vendor.display.disable_skip_validate=1 \
+    vendor.display.enable_default_color_mode=1 \
+    vendor.display.perf_hint_window=50 \
+    vendor.gralloc.enable_fb_ubwc=1
 
 # IMS
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -129,7 +129,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Perf
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.vendor.extension_library=libqti-perfd-client.so \
-    ro.vendor.qti.sys.fw.bg_apps_limit=60e
+    ro.vendor.qti.sys.fw.bg_apps_limit=60
 
 # Radio
 PRODUCT_PROPERTY_OVERRIDES += \

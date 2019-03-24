@@ -164,6 +164,7 @@ PRODUCT_PACKAGES += \
     init.qcom.rc \
     init.qcom.sh \
     init.qcom.power.rc \
+    init.power.sh \
     init.qcom.usb.rc \
     init.target.rc \
     ueventd.qcom.rc
@@ -307,7 +308,7 @@ PRODUCT_PACKAGES += \
 
 # Power
 PRODUCT_PACKAGES += \
-    android.hardware.power@1.1-service-qti
+    android.hardware.power@1.1-service.nx531j
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/powerhint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/powerhint.xml
@@ -370,6 +371,10 @@ PRODUCT_PACKAGES += \
 # Trust HAL
 PRODUCT_PACKAGES += \
     vendor.mokee.trust@1.0-service
+
+# Thermal
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/thermal-engine-8996.conf:$(TARGET_COPY_OUT_VENDOR)/etc/thermal-engine-8996.conf \
 
 # USB
 PRODUCT_PACKAGES += \
