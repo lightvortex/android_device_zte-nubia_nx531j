@@ -34,7 +34,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Overlays
 DEVICE_PACKAGE_OVERLAYS += \
     $(LOCAL_PATH)/overlay \
-    $(LOCAL_PATH)/overlay-mokee
+    $(LOCAL_PATH)/overlay-custom
 
 PRODUCT_ENFORCE_RRO_TARGETS := \
     framework-res
@@ -187,8 +187,8 @@ PRODUCT_PACKAGES += \
     libtinyxml
 
 # Doze mode
-PRODUCT_PACKAGES += \
-    NubiaDoze
+# PRODUCT_PACKAGES += \
+#   NubiaDoze
 
 # DRM
 PRODUCT_PACKAGES += \
@@ -222,8 +222,8 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/gps/etc/xtwifi.conf:$(TARGET_COPY_OUT_VENDOR)/etc/xtwifi.conf
 
 # ConfigPanel
-PRODUCT_PACKAGES += \
-    ConfigPanel
+# PRODUCT_PACKAGES += \
+#    ConfigPanel
 
 # Healthd
 PRODUCT_PACKAGES += \
@@ -384,7 +384,7 @@ PRODUCT_PACKAGES += \
     android.hardware.biometrics.fingerprint@2.0-service.nx531j
 
 # VNDK
-#PRODUCT_PACKAGES += \
+# PRODUCT_PACKAGES += \
 #    vndk-sp
 
 # MBN
