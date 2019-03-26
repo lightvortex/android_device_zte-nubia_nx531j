@@ -189,8 +189,8 @@ PRODUCT_PACKAGES += \
     libtinyxml
 
 # Doze mode
-# PRODUCT_PACKAGES += \
-#   NubiaDoze
+ PRODUCT_PACKAGES += \
+   NubiaDoze
 
 # DRM
 PRODUCT_PACKAGES += \
