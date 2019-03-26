@@ -398,5 +398,33 @@
 
     <!-- Whether to cleanup fingerprints upon connection to the daemon and when user switches -->
     <bool name="config_cleanupUnusedFingerprints">false</bool>
+    
+    <!-- Control whether the always on display mode is available. This should only be enabled on
+         devices where the display has be tuned to be power efficient in DOZE and/or DOZE_SUSPEND
+         states. -->
+    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>
+
+    <!-- Whether the display blanks itself when transitioning from a doze to a non-doze state -->
+    <bool name="config_displayBlanksAfterDoze">true</bool>
+
+    <!-- Specify custom blanking delay of the display -->
+    <integer name="config_screen_off_delay">0</integer>
+
+
+    <!-- Allow automatic adjusting of the screen brightness while dozing in low power state. -->
+    <bool name="config_allowAutoBrightnessWhileDozing">true</bool>
+
+    <!-- Minimum screen brightness setting allowed by the power manager.
+         The user is forbidden from setting the brightness below this level. -->
+    <integer name="config_screenBrightnessSettingMinimum">1</integer>
+
+   <!-- Enable ACS (auto channel selection) for Wifi hotspot (SAP) -->
+   <bool translatable="false" name="config_wifi_softap_acs_supported">true</bool>
+
+   <!-- Enable 802.11ac for Wifi hotspot (SAP) -->
+   <bool translatable="false" name="config_wifi_softap_ieee80211ac_supported">true</bool>
+
+
+
 
 </resources>
