@@ -65,7 +65,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.camera.stats.test=5 \
     camera.disable_zsl_mode=1 \
     persist.camera.gyro.disable=0
-
+    persist.camera.HAL3.enabled=1
 
 # CNE
 PRODUCT_PROPERTY_OVERRIDES += \
