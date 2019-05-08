@@ -52,7 +52,7 @@
 #define ONGOING_ATTENTION       (1 << 2)
 
 enum led_control_mode {
-    RGB_LED_MODE_CLOSED = 0,
+    RGB_LED_MODE_CLOSED,
     RGB_LED_MODE_CONSTANT_ON,
     RGB_LED_MODE_OFF,
     RGB_LED_MODE_AUTO_BLINK,
@@ -70,7 +70,7 @@ enum led_control_mode {
  */
 
 enum battery_status {
-    BATTERY_UNKNOWN = 0,
+    BATTERY_UNKNOWN,
     BATTERY_LOW,
     BATTERY_FREE,
     BATTERY_CHARGING,
@@ -135,3 +135,4 @@ class Light : public ILight {
 }  // namespace android
 
 #endif  // ANDROID_HARDWARE_LIGHT_V2_0_LIGHT_H
+

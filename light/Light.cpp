@@ -214,16 +214,6 @@ static void handleNubiaLed(const LightState& state, int source)
             buttons + BRIGHTNESS_BATTERY_FULL / 20,
             buttons + BRIGHTNESS_BATTERY_CHARGING / 20);
     }
-    else if (g_battery == BATTERY_FULL) {
-        mode = RGB_LED_MODE_CONSTANT_ON;
-        grade_len = sprintf(grade, "%d\n",
-            buttons + BRIGHTNESS_BATTERY_FULL / 20);
-    }
-    else if (g_battery == BATTERY_LOW) {
-        mode = RGB_LED_MODE_AUTO_BLINK;
-        grade_len = sprintf(grade, "%d %d\n",
-            buttons, buttons + BRIGHTNESS_BATTERY_LOW / 20);
-    }
     else if (g_ongoing & ONGOING_BUTTONS) {
         mode = RGB_LED_MODE_CONSTANT_ON;
         grade_len = sprintf(grade, "%d\n", buttons);
