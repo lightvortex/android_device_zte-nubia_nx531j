@@ -196,6 +196,11 @@ include device/qcom/sepolicy/sepolicy.mk
 
 #BOARD_SEPOLICY_DIRS += $(VENDOR_PATH)/sepolicy
 
+# Legacy blob support
+TARGET_PROCESS_SDK_VERSION_OVERRIDE += \
+    /system/bin/cameraserver=23 \
+    /system/vendor/bin/mm-qcamera-daemon=23
+
 # Wifi
 BOARD_HAS_QCOM_WLAN := true
 BOARD_HAS_QCOM_WLAN_SDK := true
