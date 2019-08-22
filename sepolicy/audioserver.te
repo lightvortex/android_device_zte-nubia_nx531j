@@ -1,3 +1,4 @@
 # Allow audioserver to create socket files for audio arbitration
 allow audioserver audio_data_file:sock_file { create setattr unlink };
 allow audioserver audio_data_file:dir remove_name;
+allow audioserver hal_sensors_default:binder call;

@@ -1,0 +1,479 @@
+# Copyright (c) 2016, Code Aurora Forum. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of Code Aurora nor
+#       the names of its contributors may be used to endorse or promote
+#       products derived from this software without specific prior written
+#       permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+
+on early-init
+    chmod 0644 /sys/kernel/debug/rpm_stats
+    chmod 0644 /sys/kernel/debug/rpm_master_stats
+    chmod 0644 /sys/kernel/debug/system_stats
+
+# MSM specific files that need to be created on /data
+on post-fs-data
+    # Create PERFD deamon related dirs
+    setprop ro.min_freq_0 384000
+    mkdir /data/misc/perfd 0755 root system
+    chmod 2755 /data/misc/perfd
+    mkdir /data/system/perfd 0770 root system
+    rm /data/system/perfd/default_values
+    chmod 2770 /data/system/perfd
+
+on init
+   # Setup cpusets used by the VR services.
+    mkdir /dev/cpuset/kernel 0750 root system
+    write /dev/cpuset/kernel/cpus 0
+    write /dev/cpuset/kernel/mems 0
+    chown system system /dev/cpuset/kernel/tasks
+    chmod 0660 /dev/cpuset/kernel/tasks
+
+    mkdir /dev/cpuset/system 0750 root system
+    write /dev/cpuset/system/cpus 0
+    write /dev/cpuset/system/mems 0
+    chown system system /dev/cpuset/system/tasks
+    chmod 0660 /dev/cpuset/system/tasks
+
+    mkdir /dev/cpuset/system/performance 0750 root system
+    write /dev/cpuset/system/performance/cpus 0
+    write /dev/cpuset/system/performance/mems 0
+    chown system system /dev/cpuset/system/performance/tasks
+    chmod 0660 /dev/cpuset/system/performance/tasks
+
+    mkdir /dev/cpuset/system/background 0750 root system
+    write /dev/cpuset/system/background/cpus 0
+    write /dev/cpuset/system/background/mems 0
+    chown system system /dev/cpuset/system/background/tasks
+    chmod 0660 /dev/cpuset/system/background/tasks
+
+    mkdir /dev/cpuset/application 0750 root system
+    write /dev/cpuset/application/cpus 0
+    write /dev/cpuset/application/mems 0
+    chown system system /dev/cpuset/application/tasks
+    chmod 0660 /dev/cpuset/application/tasks
+
+    mkdir /dev/cpuset/application/performance 0750 root system
+    write /dev/cpuset/application/performance/cpus 0
+    write /dev/cpuset/application/performance/mems 0
+    chown system system /dev/cpuset/application/performance/tasks
+    chmod 0660 /dev/cpuset/application/performance/tasks
+
+    mkdir /dev/cpuset/application/background 0750 root system
+    write /dev/cpuset/application/background/cpus 0
+    write /dev/cpuset/application/background/mems 0
+    chown system system /dev/cpuset/application/background/tasks
+    chmod 0660 /dev/cpuset/application/background/tasks
+
+    # set default schedTune value for foreground/top-app (only affects EAS)
+    write /dev/stune/rt/schedtune.boost 30
+    write /dev/stune/rt/schedtune.prefer_idle 1
+
+    # ZRAM setup
+    write /sys/block/zram0/comp_algorithm lz4
+    write /proc/sys/vm/page-cluster 0
+
+on zygote-start
+    chown system system /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
+    chmod 0660 /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
+    chown system system /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
+    chmod 0660 /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
+    chown system system /sys/class/devfreq/soc:qcom,gpubw/min_freq
+    chmod 0660 /sys/class/devfreq/soc:qcom,gpubw/min_freq
+
+on early-boot
+    # add a cpuset for the camera daemon
+    # we want all cores for camera
+    mkdir /dev/cpuset/camera-daemon
+    write /dev/cpuset/camera-daemon/cpus 0-3
+    write /dev/cpuset/camera-daemon/mems 0
+    chown system system /dev/cpuset/camera-daemon
+    chown system system /dev/cpuset/camera-daemon/tasks
+    chmod 0664 /dev/cpuset/camera-daemon/tasks
+
+on boot
+    # Bring up CPUs
+    start power-sh
+
+    # Enable sched boost in boot
+    write /proc/sys/kernel/sched_boost 1
+
+    # Set light thermal restrictions while optimizing apps
+    # [throttle_freq_LITTLE, throttle_freq_big, throttle_temp, unthrottle_temp]
+    write /sys/kernel/msm_thermal/enabled 0
+    write /sys/kernel/msm_thermal/zone0 "1228800 1632000 46 44"
+    write /sys/kernel/msm_thermal/zone1 "1228800 1555200 50 46"
+    write /sys/kernel/msm_thermal/zone2 "1036800 1248000 55 50"
+    write /sys/kernel/msm_thermal/zone3 "768000 748800 65 55"
+    write /sys/kernel/msm_thermal/enabled 1
+
+    # Update DVR cpusets to boot-time values.
+    write /dev/cpuset/kernel/cpus 0-3
+    write /dev/cpuset/system/cpus 0-3
+    write /dev/cpuset/system/performance/cpus 0-3
+    write /dev/cpuset/system/background/cpus 0-3
+    write /dev/cpuset/system/cpus 0-3
+    write /dev/cpuset/application/cpus 0-3
+    write /dev/cpuset/application/performance/cpus 0-3
+    write /dev/cpuset/application/background/cpus 0-3
+    write /dev/cpuset/application/cpus 0-3
+
+    # Exec init.foreground.sh in background
+    start vendor.foreground_sh
+
+
+on charger
+    write /sys/devices/system/cpu/cpu2/online 0
+    write /sys/devices/system/cpu/cpu3/online 0
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"
+    write /sys/module/lpm_levels/parameters/sleep_disabled 0
+
+    wait /dev/block/platform/soc/7464900.sdhci
+
+    # Setup zram options
+    write /sys/block/zram0/comp_algorithm lz4
+
+on configure-cpuset
+    # Update foreground and background cpusets
+    write /dev/cpuset/foreground/cpus 0-2
+    write /dev/cpuset/foreground/boost/cpus 0-2
+    write /dev/cpuset/background/cpus 0
+    write /dev/cpuset/system-background/cpus 0-2
+    write /dev/cpuset/top-app/cpus 0-3
+    
+    # Update DVR cpusets to runtime values.
+    write /dev/cpuset/kernel/cpus 0,1
+    write /dev/cpuset/system/performance/cpus 2
+    write /dev/cpuset/system/background/cpus 0
+    write /dev/cpuset/system/cpus 0,2
+    write /dev/cpuset/application/performance/cpus 3
+    write /dev/cpuset/application/background/cpus 1
+    write /dev/cpuset/application/cpus 1,3
+
+on property:sys.boot_completed=1
+    trigger configure-cpuset
+    # Set BFQ I/O scheduler
+    setprop sys.io.scheduler "bfq"
+    start power_system-sh
+
+on property:sys.post_boot.parsed=1
+    start vendor.perfd
+
+service vendor.foreground_sh /vendor/bin/init.foreground.sh
+    class main
+    user root
+    group root system readproc
+    disabled
+    oneshot
+
+service power-sh /vendor/bin/init.power.sh
+    class main
+    user root
+    group root system
+    disabled
+    oneshot
+
+service power_system-sh /vendor/bin/init.power_system.sh
+    class main
+    user root
+    group root system
+    disabled
+    oneshot
+
+service energy-awareness /vendor/bin/energy-awareness
+    class main
+    user root
+    group system
+    oneshot
+
+service msm_irqbalance /vendor/bin/msm_irqbalance -f /vendor/etc/msm_irqbalance.conf
+    socket msm_irqbalance seqpacket 660 root system
+    class core
+    user root
+    group root
+    writepid /dev/cpuset/system-background/tasks
+
+service vendor.perfd /vendor/bin/perfd
+   class main
+   user root
+   group root system
+   writepid /dev/cpuset/system-background/tasks
+   disabled
+
+service vendor.hvdcp_opti /vendor/bin/hvdcp_opti
+    class main
+    user root
+    group system wakelock
+
+# B 307200 403200 480000 556800 652800 729600 806400 883200 940800 1036800 1113600 1190400 1248000 1324800 1401600 1478400 1555200 1632000 1708800 1785600 1824000 1920000 1996800 2073600 2150400 
+                                                                                                              
+# L 307200 422400 480000 556800 652800 729600 844800 960000 1036800 1113600 1190400 1228800 1324800 1401600 1478400 1593600 
+
+
+# Balance (default profile)
+on property:persist.eas.mode=0
+   chown root root /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
+   chown root root /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
+   chown root root /dev/stune/top-app/schedtune.boost
+   chown root root /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+   chown root root /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+   chown root root /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+   chown root root /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+    # Stune-Boost
+    write /dev/stune/top-app/schedtune.sched_boost 10
+    write /dev/stune/foreground/schedtune.prefer_idle 1
+    write /dev/stune/top-app/schedtune.boost 0
+    write /dev/stune/top-app/schedtune.prefer_idle 1
+    # Governor
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "schedutil"
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/up_rate_limit_us 1000
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/down_rate_limit_us 10000
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/iowait_boost_enable 0
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor "schedutil"
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/up_rate_limit_us 1000
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/down_rate_limit_us 10000
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/iowait_boost_enable 0
+    # CPU-Freq
+    chmod 0777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+    chmod 0777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 307200
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1593600
+    chmod 0444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+    chmod 0444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
+    chmod 0777 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+    chmod 0777 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq 307200
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1996800
+    chmod 0444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+    chmod 0444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+
+    # Touchboost
+    write /sys/module/msm_performance/parameters/touchboost 0
+    # Input-Boost
+    write /sys/module/cpu_boost/parameters/input_boost_enabled 1
+    write /sys/module/cpu_boost/parameters/input_boost_freq "0:844800 2:652800"
+    write /sys/module/cpu_boost/parameters/input_boost_ms 80
+    write /sys/module/cpu_boost/parameters/dynamic_stune_boost 10
+    write /sys/module/cpu_boost/parameters/dynamic_stune_boost_ms 300
+    # Thermal
+    write /sys/kernel/msm_thermal/enabled 0
+    write /sys/kernel/msm_thermal/zone0 "1593600 2150400 41 40"
+    write /sys/kernel/msm_thermal/zone1 "1478400 2150400 42 41"
+    write /sys/kernel/msm_thermal/zone2 "1324800 2073600 43 42"
+    write /sys/kernel/msm_thermal/zone3 "1324800 1996800 44 43"
+    write /sys/kernel/msm_thermal/zone4 "1228800 1920000 45 44"
+    write /sys/kernel/msm_thermal/zone5 "1228800 1824000 47 45"
+    write /sys/kernel/msm_thermal/zone6 "1113600 1632000 49 47"
+    write /sys/kernel/msm_thermal/zone7 "1036800 1324800 54 49"
+    write /sys/kernel/msm_thermal/zone8 "960000 1036800 58 54"
+    write /sys/kernel/msm_thermal/zone9 "844800 940800 60 58"
+    write /sys/kernel/msm_thermal/zone10 "729600 729600 63 60"
+    write /sys/kernel/msm_thermal/sampling_ms 4000
+    write /sys/kernel/msm_thermal/enabled 1
+
+# Performance
+on property:persist.eas.mode=1
+   chown root root /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
+   chown root root /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
+   chown root root /dev/stune/top-app/schedtune.boost
+   chown root root /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+   chown root root /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+   chown root root /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+   chown root root /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+    # Stune-Boost
+    write /dev/stune/top-app/schedtune.sched_boost 30
+    write /dev/stune/foreground/schedtune.prefer_idle 1
+    write /dev/stune/top-app/schedtune.boost 1
+    write /dev/stune/top-app/schedtune.prefer_idle 1
+    # Governor
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "schedutil"
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/up_rate_limit_us 500
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/down_rate_limit_us 20000
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/iowait_boost_enable 0
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor "schedutil"
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/up_rate_limit_us 500
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/down_rate_limit_us 20000
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/iowait_boost_enable 0
+    # CPU-Freq
+    chmod 0777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+    chmod 0777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 307200
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1593600
+    chmod 0444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+    chmod 0444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
+    chmod 0777 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+    chmod 0777 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq 307200
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 2150400
+    chmod 0444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+    chmod 0444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+
+    # Touchboost
+    write /sys/module/msm_performance/parameters/touchboost 0
+    # Input-Boost
+    write /sys/module/cpu_boost/parameters/input_boost_enabled 1
+    write /sys/module/cpu_boost/parameters/input_boost_freq "0:1036800 2:940800"
+    write /sys/module/cpu_boost/parameters/input_boost_ms 500
+    write /sys/module/cpu_boost/parameters/dynamic_stune_boost 30
+    write /sys/module/cpu_boost/parameters/dynamic_stune_boost_ms 750
+    # Thermal
+    write /sys/kernel/msm_thermal/enabled 0
+    write /sys/kernel/msm_thermal/zone0 "1593600 2150400 44 43"
+    write /sys/kernel/msm_thermal/zone1 "1593600 2150400 45 44"
+    write /sys/kernel/msm_thermal/zone2 "1478400 2073600 46 45"
+    write /sys/kernel/msm_thermal/zone3 "1401600 1996800 47 46"
+    write /sys/kernel/msm_thermal/zone4 "1324800 1920000 48 47"
+    write /sys/kernel/msm_thermal/zone5 "1228800 1824000 50 48"
+    write /sys/kernel/msm_thermal/zone6 "1113600 1632000 52 50"
+    write /sys/kernel/msm_thermal/zone7 "1036800 1324800 57 52"
+    write /sys/kernel/msm_thermal/zone8 "960000 1036800 61 57"
+    write /sys/kernel/msm_thermal/zone9 "844800 940800 63 61"
+    write /sys/kernel/msm_thermal/zone10 "729600 729600 66 63"
+    write /sys/kernel/msm_thermal/sampling_ms 4000
+    write /sys/kernel/msm_thermal/enabled 1
+
+# Battery
+on property:persist.eas.mode=2
+   chown root root /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
+   chown root root /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
+   chown root root /dev/stune/top-app/schedtune.boost
+   chown root root /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+   chown root root /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+   chown root root /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+   chown root root /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+    # Stune-Boost
+    write /dev/stune/top-app/schedtune.sched_boost 0
+    write /dev/stune/foreground/schedtune.prefer_idle 1
+    write /dev/stune/top-app/schedtune.boost 0
+    write /dev/stune/top-app/schedtune.prefer_idle 1
+    # Governor
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "schedutil"
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/up_rate_limit_us 1500
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/down_rate_limit_us 5000
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/iowait_boost_enable 0
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor "schedutil"
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/up_rate_limit_us 1500
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/down_rate_limit_us 5000
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/iowait_boost_enable 0
+    # CPU-Freq
+    chmod 0777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+    chmod 0777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 307200
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1228800
+    chmod 0444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+    chmod 0444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
+    chmod 0777 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+    chmod 0777 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq 307200
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 1036800
+    chmod 0444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+    chmod 0444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+    # Touchboost
+    write /sys/module/msm_performance/parameters/touchboost 0
+    # Input-Boost
+    write /sys/module/cpu_boost/parameters/input_boost_enabled 0
+    write /sys/module/cpu_boost/parameters/input_boost_freq "0:0 2:0"
+    write /sys/module/cpu_boost/parameters/input_boost_ms 0
+    write /sys/module/cpu_boost/parameters/dynamic_stune_boost 0
+    write /sys/module/cpu_boost/parameters/dynamic_stune_boost_ms 0
+    # Thermal
+    write /sys/kernel/msm_thermal/enabled 0
+    write /sys/kernel/msm_thermal/zone0 "1593600 2150400 41 40"
+    write /sys/kernel/msm_thermal/zone1 "1401600 1996800 42 41"
+    write /sys/kernel/msm_thermal/zone2 "1324800 1824000 43 42"
+    write /sys/kernel/msm_thermal/zone3 "1228800 1708800 44 43"
+    write /sys/kernel/msm_thermal/zone4 "1228800 1632000 45 44"
+    write /sys/kernel/msm_thermal/zone5 "1190400 1555200 47 45"
+    write /sys/kernel/msm_thermal/zone6 "1113600 1401600 49 47"
+    write /sys/kernel/msm_thermal/zone7 "1036800 1324800 54 49"
+    write /sys/kernel/msm_thermal/zone8 "960000 1036800 58 54"
+    write /sys/kernel/msm_thermal/zone9 "844800 940800 60 58"
+    write /sys/kernel/msm_thermal/zone10 "729600 729600 63 60"
+    write /sys/kernel/msm_thermal/sampling_ms 8000
+    write /sys/kernel/msm_thermal/enabled 1
+
+
+# Gaming
+on property:persist.eas.mode=3
+   chown root root /sys/class/kgsl/kgsl-3d0/devfreq/min_freq
+   chown root root /sys/class/kgsl/kgsl-3d0/devfreq/max_freq
+   chown root root /dev/stune/top-app/schedtune.boost
+   chown root root /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+   chown root root /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+   chown root root /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+   chown root root /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+    # Stune-Boost
+    write /dev/stune/top-app/schedtune.sched_boost 50
+    write /dev/stune/foreground/schedtune.prefer_idle 0
+    write /dev/stune/top-app/schedtune.boost 1
+    write /dev/stune/top-app/schedtune.prefer_idle 0
+    # Governor
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "schedutil"
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/up_rate_limit_us 500
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/down_rate_limit_us 25000
+    write /sys/devices/system/cpu/cpu0/cpufreq/schedutil/iowait_boost_enable 0
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_governor "schedutil"
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/up_rate_limit_us 500
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/down_rate_limit_us 25000
+    write /sys/devices/system/cpu/cpu2/cpufreq/schedutil/iowait_boost_enable 0
+    # CPU-Freq
+    chmod 0777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+    chmod 0777 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 652800
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1593600
+    chmod 0444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+    chmod 0444 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
+    chmod 0777 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+    chmod 0777 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq 652800
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq 2150400
+    chmod 0444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_max_freq
+    chmod 0444 /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq
+
+    # Touchboost
+    write /sys/module/msm_performance/parameters/touchboost 0
+    # Input-Boost
+    write /sys/module/cpu_boost/parameters/input_boost_enabled 1
+    write /sys/module/cpu_boost/parameters/input_boost_freq "0:1113600 2:1036800"
+    write /sys/module/cpu_boost/parameters/input_boost_ms 1000
+    write /sys/module/cpu_boost/parameters/dynamic_stune_boost 50
+    write /sys/module/cpu_boost/parameters/dynamic_stune_boost_ms 1000
+    # Thermal
+    write /sys/kernel/msm_thermal/enabled 0
+    write /sys/kernel/msm_thermal/zone0 "1593600 2150400 46 45"
+    write /sys/kernel/msm_thermal/zone1 "1593600 2150400 47 46"
+    write /sys/kernel/msm_thermal/zone2 "1478400 2073600 48 47"
+    write /sys/kernel/msm_thermal/zone3 "1401600 1996800 49 48"
+    write /sys/kernel/msm_thermal/zone4 "1324800 1920000 50 49"
+    write /sys/kernel/msm_thermal/zone5 "1228800 1824000 52 50"
+    write /sys/kernel/msm_thermal/zone6 "1113600 1632000 54 52"
+    write /sys/kernel/msm_thermal/zone7 "1036800 1324800 59 54"
+    write /sys/kernel/msm_thermal/zone8 "960000 1036800 63 59"
+    write /sys/kernel/msm_thermal/zone9 "844800 940800 65 63"
+    write /sys/kernel/msm_thermal/zone10 "729600 729600 70 65"
+    write /sys/kernel/msm_thermal/sampling_ms 1000
+    write /sys/kernel/msm_thermal/enabled 1
