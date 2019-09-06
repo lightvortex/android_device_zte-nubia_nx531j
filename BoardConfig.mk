@@ -58,6 +58,7 @@ TARGET_KERNEL_CONFIG := nx531j_defconfig
 
 # HAX: Remove AOSP
 BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
+SELINUX_IGNORE_NEVERALLOWS := true
 
 # Platform
 TARGET_BOARD_PLATFORM := msm8996
@@ -197,7 +198,7 @@ TARGET_USES_OLD_MNC_FORMAT := true
 VENDOR_SECURITY_PATCH := 2018-10-01
 
 # SELinux
-include device/qcom/sepolicy/sepolicy.mk
+#include device/qcom/sepolicy/sepolicy.mk
 
 #BOARD_SEPOLICY_DIRS += $(VENDOR_PATH)/sepolicy
 
