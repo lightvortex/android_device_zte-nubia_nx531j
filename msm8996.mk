@@ -31,13 +31,15 @@ PRODUCT_PROPERTY_OVERRIDES += \
     dalvik.vm.heapminfree=2m \
     dalvik.vm.heapmaxfree=8m
 
-# Overlays
+# Overlay
 DEVICE_PACKAGE_OVERLAYS += \
     $(LOCAL_PATH)/overlay \
     $(LOCAL_PATH)/overlay-custom
 
 PRODUCT_ENFORCE_RRO_TARGETS := \
     framework-res
+
+PRODUCT_ENFORCE_RRO_EXCLUDED_OVERLAYS += $(LOCAL_PATH)/overlay-custom
 
 # Screen density
 PRODUCT_AAPT_CONFIG := normal
