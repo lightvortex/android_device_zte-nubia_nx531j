@@ -22,10 +22,10 @@
 #ifndef _BDROID_BUILDCFG_H
 #define _BDROID_BUILDCFG_H
 
-#include <cutils/properties.h>
+// #include <cutils/properties.h>
 #include <string.h>
 
-static inline const char* BtmGetDefaultName()
+/* static inline const char* BtmGetDefaultName()
 {
     char product_device[PROPERTY_VALUE_MAX];
     property_get("ro.product.device", product_device, "");
@@ -40,12 +40,14 @@ static inline const char* BtmGetDefaultName()
         return "Xiaomi MI 5s Plus";
     if (strstr(product_device, "scorpio"))
         return "Xiaomi MI Note 2";
+    if (strstr(product_device, "nx531j"))
+        return "Nubia Z11";
 
     // Fallback to ro.product.model
     return "";
 }
-
-#define BTM_DEF_LOCAL_NAME BtmGetDefaultName()
+*/
+//#define BTM_DEF_LOCAL_NAME BtmGetDefaultName()
 #define BLUETOOTH_QTI_SW TRUE
 #define MAX_ACL_CONNECTIONS   16
 #define MAX_L2CAP_CHANNELS    16
@@ -55,5 +57,5 @@ static inline const char* BtmGetDefaultName()
 /* Increasing SEPs to 12 from 6 to support SHO/MCast i.e. two streams per codec */
 #define AVDT_NUM_SEPS 12
 
-#undef PROPERTY_VALUE_MAX
+//#undef PROPERTY_VALUE_MAX
 #endif
