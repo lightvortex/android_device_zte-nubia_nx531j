@@ -24,14 +24,14 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 # Inherit from those products. Most specific first.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 
-# Inherit some common havoc stuff.
-$(call inherit-product, vendor/havoc/config/common.mk)
+# Enable updating of APEXes
+$(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 
 # Inherit device configuration
 $(call inherit-product, device/nubia/nx531j/msm8996.mk)
 
 # Device identifier. This must come after all inclusions
-PRODUCT_NAME := havoc_nx531j
+PRODUCT_NAME := aosp_nx531j
 PRODUCT_DEVICE := nx531j
 PRODUCT_BRAND := nubia
 PRODUCT_MODEL := nx531j
@@ -49,6 +49,6 @@ PRODUCT_BUILD_PROP_OVERRIDES += \
     TARGET_DEVICE="NX531J"
 
 # Official HavocOS
-HAVOC_BUILD_TYPE := Official
+#HAVOC_BUILD_TYPE := Official
 
 BUILD_FINGERPRINT=nubia/NX531J/NX531J:7.1.1/NMF26F/nubia11151741:user/release-keys

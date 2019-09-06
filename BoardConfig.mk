@@ -63,6 +63,9 @@ BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
 TARGET_BOARD_PLATFORM := msm8996
 TARGET_BOARD_PLATFORM_GPU := qcom-adreno530
 
+# APEX image
+DEXPREOPT_GENERATE_APEX_IMAGE := true
+
 # ANT+
 BOARD_ANT_WIRELESS_DEVICE := "qualcomm-hidl"
 
@@ -165,6 +168,9 @@ BOARD_ROOT_EXTRA_SYMLINKS := \
     /vendor/firmware_mnt:/firmware \
     /vendor/bt_firmware:/bt_firmware
 TARGET_USES_MKE2FS := true
+
+# VNDK
+BOARD_VNDK_VERSION := current
 
 # Power
 TARGET_TAP_TO_WAKE_NODE := "/sys/bus/i2c/devices/12-0020/wake_gesture"
