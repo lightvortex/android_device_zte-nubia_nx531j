@@ -45,6 +45,11 @@
 /(vendor|system/vendor)/bin/readfem   u:object_r:readfem_exec:s0
 /(vendor|system/vendor)/bin/readmac   u:object_r:readmac_exec:s0
 
+# Root extra symlinks
+/persist                                                      u:object_r:mnt_vendor_file:s0
+/firmware                                                     u:object_r:firmware_file:s0
+/bt_firmware                                                  u:object_r:bt_firmware_file:s0
+
 # HALs
 /(vendor|system/vendor)/bin/hw/android\.hardware\.drm@1\.1-service\.clearkey         u:object_r:hal_drm_clearkey_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.drm@1\.1-service\.widevine         u:object_r:hal_drm_widevine_exec:s0
