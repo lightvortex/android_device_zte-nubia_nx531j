@@ -16,9 +16,3 @@ sys.panel.                 u:object_r:system_panel_prop:s0
 ro.min_freq_0              u:object_r:freq_prop:s0
 ro.min_freq_4              u:object_r:freq_prop:s0
 sys.post_boot.parsed       u:object_r:vendor_mpctl_prop:s0
-
-# Power
-vendor.powerhal.state                                         u:object_r:power_prop:s0
-vendor.powerhal.audio                                         u:object_r:power_prop:s0
-vendor.powerhal.init                                          u:object_r:power_prop:s0
-vendor.powerhal.rendering                                     u:object_r:power_prop:s0
