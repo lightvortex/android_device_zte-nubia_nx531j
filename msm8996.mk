@@ -105,16 +105,16 @@ PRODUCT_COPY_FILES += \
 
 # Audio
 PRODUCT_PACKAGES += \
-    android.hardware.audio@2.0-impl \
     android.hardware.audio@2.0-service \
-    android.hardware.audio@4.0 \
-    android.hardware.audio@4.0-impl \
-    android.hardware.audio.common@4.0 \
-    android.hardware.audio.common@4.0-util \
+    android.hardware.audio@2.0-impl \
     android.hardware.audio.effect@2.0-impl \
-    android.hardware.audio.effect@4.0 \
-    android.hardware.audio.effect@4.0-impl \
     android.hardware.soundtrigger@2.1-impl \
+    android.hardware.audio@5.0 \
+    android.hardware.audio.common@5.0 \
+    android.hardware.audio.common@5.0-util \
+    android.hardware.audio@5.0-impl \
+    android.hardware.audio.effect@5.0 \
+    android.hardware.audio.effect@5.0-impl \
     audio.a2dp.default \
     audio.primary.msm8996 \
     audio.r_submix.default \
@@ -175,11 +175,15 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.hardware.graphics.allocator@2.0-impl \
     android.hardware.graphics.allocator@2.0-service \
+    android.hardware.graphics.mapper@2.0-impl \
     android.hardware.graphics.composer@2.1-impl \
     android.hardware.graphics.composer@2.1-service \
-    android.hardware.graphics.mapper@2.0-impl \
     android.hardware.memtrack@1.0-impl \
     android.hardware.memtrack@1.0-service \
+    android.hardware.configstore@1.0-service \
+    android.hardware.broadcastradio@1.0-impl \
+    vendor.display.color@1.0-service \
+    vendor.display.color@1.0-impl \
     copybit.msm8996 \
     gralloc.msm8996 \
     hwcomposer.msm8996 \
@@ -197,7 +201,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     android.hardware.drm@1.0-impl \
     android.hardware.drm@1.0-service \
-    android.hardware.drm@1.1-service.clearkey
+    android.hardware.drm@1.2-service.clearkey
 
 # For config.fs
 PRODUCT_PACKAGES += \
@@ -210,7 +214,8 @@ PRODUCT_PACKAGES += \
 
 # GPS
 PRODUCT_PACKAGES += \
-    android.hardware.gnss@1.0-impl-qti \
+    android.hardware.gnss@2.0-impl-qti \
+    android.hardware.gnss@2.0-service-qti \
     libcurl \
     libgnss \
     libgnsspps \
@@ -227,8 +232,7 @@ PRODUCT_PACKAGES += \
 
 # HIDL
 PRODUCT_PACKAGES += \
-    android.hidl.base@1.0 \
-    android.hidl.manager@1.0
+    android.hidl.base@1.0
 
 # IMS
 PRODUCT_PACKAGES += \
@@ -253,7 +257,8 @@ PRODUCT_PACKAGES += \
     ethertypes \
     libebtc
 
-# Keymaster
+
+# Keymaster HAL
 PRODUCT_PACKAGES += \
     android.hardware.keymaster@3.0-impl \
     android.hardware.keymaster@3.0-service
@@ -302,7 +307,7 @@ PRODUCT_PACKAGES += \
 
 # Power
 PRODUCT_PACKAGES += \
-    android.hardware.power@1.1-service.nx531j
+    android.hardware.power@1.2-service-qti
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/powerhint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/powerhint.xml
@@ -350,10 +355,16 @@ PRODUCT_COPY_FILES += \
 
 # Telephony
 PRODUCT_PACKAGES += \
+    ims-ext-common_system \
+    qti-telephony-hidl-wrapper \
+    qti_telephony_hidl_wrapper.xml \
+    qti-telephony-utils \
+    qti_telephony_utils.xml \
     telephony-ext
 
-#PRODUCT_BOOT_JARS += \
-#    telephony-ext
+PRODUCT_BOOT_JARS += \
+    ims-ext-common_system \
+    telephony-ext
 
 # TextClassifier
 PRODUCT_PACKAGES += \

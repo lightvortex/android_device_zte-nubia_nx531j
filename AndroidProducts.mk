@@ -14,9 +14,9 @@
 # limitations under the License.
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/aosp_nx531j.mk
+    $(LOCAL_DIR)/havoc_nx531j.mk
 
 COMMON_LUNCH_CHOICES := \
-    aosp_nx531j-user \
-    aosp_nx531j-userdebug \
-    aosp_nx531j-eng
+    havoc_nx531j-user \
+    havoc_nx531j-userdebug \
+    havoc_nx531j-eng
