@@ -30,7 +30,7 @@
 #ifndef __QCAMERA_CHANNEL_H__
 #define __QCAMERA_CHANNEL_H__
 
-#include "camera.h"
+#include "hardware/camera.h"
 #include "QCameraMem.h"
 #include "QCameraParameters.h"
 #include "QCameraStream.h"
@@ -61,6 +61,7 @@ public:
     virtual int32_t start();
     virtual int32_t stop();
     virtual int32_t bufDone(mm_camera_super_buf_t *recvd_frame);
+    virtual int32_t bufDone(mm_camera_super_buf_t *recvd_frame, uint32_t stream_id);
     virtual int32_t processZoomDone(preview_stream_ops_t *previewWindow,
                                     cam_crop_data_t &crop_info);
     QCameraStream *getStreamByHandle(uint32_t streamHandle);
@@ -72,7 +73,7 @@ public:
     void deleteChannel();
     int32_t setStreamSyncCB (cam_stream_type_t stream_type,
             stream_cb_routine stream_cb);
-
+    bool isActive() { return m_bIsActive; }
 protected:
     uint32_t m_camHandle;
     mm_camera_ops_t *m_camOps;
@@ -83,6 +84,7 @@ protected:
     Vector<QCameraStream *> mStreams;
     mm_camera_buf_notify_t mDataCB;
     void *mUserData;
+    Mutex mStreamLock;
 };
 
 // burst pic channel: i.e. zsl burst mode
@@ -109,6 +111,8 @@ public:
                         mm_camera_ops_t *cam_ops);
     QCameraVideoChannel();
     virtual ~QCameraVideoChannel();
+    int32_t takePicture(mm_camera_req_buf_t *buf);
+    int32_t cancelPicture();
     int32_t releaseFrame(const void *opaque, bool isMetaData);
 };
 
@@ -138,10 +142,15 @@ public:
     int32_t doReprocess(int buf_fd, size_t buf_length, int32_t &ret_val);
 
     int32_t doReprocessOffline(mm_camera_super_buf_t *frame,
-             mm_camera_buf_def_t *meta_buf);
+             mm_camera_buf_def_t *meta_buf, QCameraParametersIntf &param);
+
+    int32_t doReprocessOffline(mm_camera_buf_def_t *frame,
+             mm_camera_buf_def_t *meta_buf, QCameraStream *pStream = NULL);
 
     int32_t stop();
     QCameraChannel *getSrcChannel(){return m_pSrcChannel;};
+    int8_t getReprocCount(){return mPassCount;};
+    void setReprocCount(int8_t count) {mPassCount = count;};
 
 private:
     QCameraStream *getStreamBySrouceHandle(uint32_t srcHandle);
@@ -155,7 +164,7 @@ private:
     uint32_t mSrcStreamHandles[MAX_STREAM_NUM_IN_BUNDLE];
     QCameraChannel *m_pSrcChannel; // ptr to source channel for reprocess
     android::List<OfflineBuffer> mOfflineBuffers;
-
+    int8_t mPassCount;
 };
 
 }; // namespace qcamera

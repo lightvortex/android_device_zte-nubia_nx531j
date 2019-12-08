@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014, 2016, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2017, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -35,6 +35,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <unistd.h>
+
 #define IOCTL_H <SYSTEM_HEADER_PREFIX/ioctl.h>
 #include IOCTL_H
 
@@ -259,6 +261,8 @@ int32_t mm_camera_open(mm_camera_obj_t *my_obj)
     uint8_t sleep_msec=MM_CAMERA_DEV_OPEN_RETRY_SLEEP;
     int cam_idx = 0;
     const char *dev_name_value = NULL;
+    int l_errno = 0;
+    pthread_condattr_t cond_attr;
 
     LOGD("begin\n");
 
@@ -278,7 +282,8 @@ int32_t mm_camera_open(mm_camera_obj_t *my_obj)
         n_try--;
         errno = 0;
         my_obj->ctrl_fd = open(dev_name, O_RDWR | O_NONBLOCK);
-        LOGD("ctrl_fd = %d, errno == %d", my_obj->ctrl_fd, errno);
+        l_errno = errno;
+        LOGD("ctrl_fd = %d, errno == %d", my_obj->ctrl_fd, l_errno);
         if((my_obj->ctrl_fd >= 0) || (errno != EIO && errno != ETIMEDOUT) || (n_try <= 0 )) {
             LOGH("opened, break out while loop");
             break;
@@ -290,8 +295,8 @@ int32_t mm_camera_open(mm_camera_obj_t *my_obj)
 
     if (my_obj->ctrl_fd < 0) {
         LOGE("cannot open control fd of '%s' (%s)\n",
-                 dev_name, strerror(errno));
-        if (errno == EBUSY)
+                  dev_name, strerror(l_errno));
+        if (l_errno == EBUSY)
             rc = -EUSERS;
         else
             rc = -1;
@@ -303,7 +308,8 @@ int32_t mm_camera_open(mm_camera_obj_t *my_obj)
     do {
         n_try--;
         my_obj->ds_fd = mm_camera_socket_create(cam_idx, MM_CAMERA_SOCK_TYPE_UDP);
-        LOGD("ds_fd = %d, errno = %d", my_obj->ds_fd, errno);
+        l_errno = errno;
+        LOGD("ds_fd = %d, errno = %d", my_obj->ds_fd, l_errno);
         if((my_obj->ds_fd >= 0) || (n_try <= 0 )) {
             LOGD("opened, break out while loop");
             break;
@@ -315,15 +321,19 @@ int32_t mm_camera_open(mm_camera_obj_t *my_obj)
 
     if (my_obj->ds_fd < 0) {
         LOGE("cannot open domain socket fd of '%s'(%s)\n",
-                 dev_name, strerror(errno));
+                  dev_name, strerror(l_errno));
         rc = -1;
         goto on_error;
     }
-    pthread_mutex_init(&my_obj->msg_lock, NULL);
 
+    pthread_condattr_init(&cond_attr);
+    pthread_condattr_setclock(&cond_attr, CLOCK_MONOTONIC);
+
+    pthread_mutex_init(&my_obj->msg_lock, NULL);
     pthread_mutex_init(&my_obj->cb_lock, NULL);
     pthread_mutex_init(&my_obj->evt_lock, NULL);
-    pthread_cond_init(&my_obj->evt_cond, NULL);
+    pthread_cond_init(&my_obj->evt_cond, &cond_attr);
+    pthread_condattr_destroy(&cond_attr);
 
     LOGD("Launch evt Thread in Cam Open");
     snprintf(my_obj->evt_thread.threadName, THREAD_NAME_SIZE, "CAM_Dispatch");
@@ -412,6 +422,7 @@ int32_t mm_camera_close(mm_camera_obj_t *my_obj)
     pthread_cond_destroy(&my_obj->evt_cond);
 
     pthread_mutex_unlock(&my_obj->cam_lock);
+
     return 0;
 }
 
@@ -522,6 +533,38 @@ int32_t mm_camera_qbuf(mm_camera_obj_t *my_obj,
      * in order to avoid deadlock, we are not locking ch_lock for qbuf */
     if (NULL != ch_obj) {
         rc = mm_channel_qbuf(ch_obj, buf);
+    }
+
+    return rc;
+}
+
+/*===========================================================================
+ * FUNCTION   : mm_camera_cancel_buf
+ *
+ * DESCRIPTION: Cancel an already queued buffer
+ *
+ * PARAMETERS :
+ *   @my_obj       : camera object
+ *   @ch_id        : channel handle
+ *
+ *   @buf          : buf ptr to be enqueued
+ *
+ * RETURN     : int32_t type of status
+ *              0  -- success
+ *              -1 -- failure
+ *==========================================================================*/
+int32_t mm_camera_cancel_buf(mm_camera_obj_t *my_obj,
+                       uint32_t ch_id,
+                       uint32_t stream_id,
+                       uint32_t buf_idx)
+{
+    int rc = -1;
+    mm_channel_t * ch_obj = NULL;
+    ch_obj = mm_camera_util_get_channel_by_handler(my_obj, ch_id);
+
+    if (NULL != ch_obj) {
+        pthread_mutex_unlock(&my_obj->cam_lock);
+        rc = mm_channel_cancel_buf(ch_obj,stream_id,buf_idx);
     }
 
     return rc;
@@ -1727,7 +1770,7 @@ void mm_camera_util_wait_for_event(mm_camera_obj_t *my_obj,
 
     pthread_mutex_lock(&my_obj->evt_lock);
     while (!(my_obj->evt_rcvd.server_event_type & evt_mask)) {
-        clock_gettime(CLOCK_REALTIME, &ts);
+        clock_gettime(CLOCK_MONOTONIC, &ts);
         ts.tv_sec += WAIT_TIMEOUT;
         rc = pthread_cond_timedwait(&my_obj->evt_cond, &my_obj->evt_lock, &ts);
         if (rc) {
@@ -2212,11 +2255,11 @@ int g_cam_log[CAM_LAST_MODULE][CAM_GLBL_DBG_INFO + 1] = {
 static const char *cam_dbg_level_to_str[] = {
      "",        /* CAM_GLBL_DBG_NONE  */
      "<ERROR>", /* CAM_GLBL_DBG_ERR   */
-     "<WARN >", /* CAM_GLBL_DBG_WARN  */
-     "<HIGH >", /* CAM_GLBL_DBG_HIGH  */
-     "<DBG  >", /* CAM_GLBL_DBG_DEBUG */
-     "<LOW  >", /* CAM_GLBL_DBG_LOW   */
-     "<INFO >"  /* CAM_GLBL_DBG_INFO  */
+     "<WARN>", /* CAM_GLBL_DBG_WARN  */
+     "<HIGH>", /* CAM_GLBL_DBG_HIGH  */
+     "<DBG>", /* CAM_GLBL_DBG_DEBUG */
+     "<LOW>", /* CAM_GLBL_DBG_LOW   */
+     "<INFO>"  /* CAM_GLBL_DBG_INFO  */
 };
 
 /* current trace logging configuration */
@@ -2231,9 +2274,9 @@ static module_debug_t cam_loginfo[(int)CAM_LAST_MODULE] = {
   {CAM_GLBL_DBG_ERR, 1,
       "",         "persist.camera.global.debug"     }, /* CAM_NO_MODULE     */
   {CAM_GLBL_DBG_ERR, 1,
-      "<HAL >", "persist.camera.hal.debug"        }, /* CAM_HAL_MODULE    */
+      "<HAL>", "persist.camera.hal.debug"        }, /* CAM_HAL_MODULE    */
   {CAM_GLBL_DBG_ERR, 1,
-      "<MCI >", "persist.camera.mci.debug"        }, /* CAM_MCI_MODULE    */
+      "<MCI>", "persist.camera.mci.debug"        }, /* CAM_MCI_MODULE    */
   {CAM_GLBL_DBG_ERR, 1,
       "<JPEG>", "persist.camera.mmstill.logs"     }, /* CAM_JPEG_MODULE   */
 };

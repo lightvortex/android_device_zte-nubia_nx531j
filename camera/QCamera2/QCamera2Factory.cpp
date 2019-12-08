@@ -36,7 +36,7 @@
 
 // Camera dependencies
 #ifdef QCAMERA_HAL1_SUPPORT
-#include "camera.h"
+#include "hardware/camera.h"
 #include "HAL/QCamera2HWI.h"
 #include "QCameraMuxer.h"
 #endif
@@ -76,11 +76,11 @@ volatile uint32_t gKpiDebugLevel = 1;
  *==========================================================================*/
 QCamera2Factory::QCamera2Factory()
 {
-    camera_info info;
     mHalDescriptors = NULL;
     mCallbacks = NULL;
     mNumOfCameras = get_num_of_cameras();
     int bDualCamera = 0;
+    char propDefault[PROPERTY_VALUE_MAX];
     char prop[PROPERTY_VALUE_MAX];
     property_get("persist.camera.HAL3.enabled", prop, "1");
     int isHAL3Enabled = atoi(prop);
@@ -89,7 +89,8 @@ QCamera2Factory::QCamera2Factory()
 #endif
 
     // Signifies whether system has to enable dual camera mode
-    property_get("persist.camera.dual.camera", prop, "0");
+    snprintf(propDefault, PROPERTY_VALUE_MAX, "%d", isDualCamAvailable(isHAL3Enabled));
+    property_get("persist.camera.dual.camera", prop, propDefault);
     bDualCamera = atoi(prop);
     LOGH("dualCamera:%d ", bDualCamera);
 #ifndef QCAMERA_HAL1_SUPPORT
@@ -126,10 +127,6 @@ QCamera2Factory::QCamera2Factory()
                     mHalDescriptors[i].device_version =
                             CAMERA_DEVICE_API_VERSION_1_0;
                 }
-                //Query camera at this point in order
-                //to avoid any delays during subsequent
-                //calls to 'getCameraInfo()'
-                getCameraInfo(i, &info);
             }
         } else {
             LOGE("Not enough resources to allocate HAL descriptor table!");
@@ -595,5 +592,44 @@ int QCamera2Factory::setTorchMode(const char* camera_id, bool on)
 
     return retVal;
 }
+
+/*===========================================================================
+ * FUNCTION   : isDualCamAvailable
+ *
+ * DESCRIPTION: Function to check whether we have dual Camera HW available
+ *
+ * PARAMETERS :
+ *   @hal3Enabled : HAL3 enable flag
+ *
+ * RETURN     : bool - true : have Dual Camera HW available
+ *                           false : not have Dual Camera HW available
+ *==========================================================================*/
+bool QCamera2Factory::isDualCamAvailable(int hal3Enabled)
+{
+    bool rc = false;
+    int i = 0;
+    camera_info info;
+    cam_sync_type_t cam_type = CAM_TYPE_MAIN;
+
+    for (i = 0; i < mNumOfCameras; i++) {
+        if (!hal3Enabled) {
+#ifdef QCAMERA_HAL1_SUPPORT
+            QCamera2HardwareInterface::getCapabilities(i, &info, &cam_type);
+#endif
+        }
+
+        if(cam_type == CAM_TYPE_AUX) {
+            LOGH("Have Dual Camera HW Avaiable.");
+            rc = true;
+            break;
+        }
+    }
+#ifdef QCAMERA_HAL1_SUPPORT
+    return rc;
+#else
+    return false;
+#endif
+}
+
 }; // namespace qcamera
 

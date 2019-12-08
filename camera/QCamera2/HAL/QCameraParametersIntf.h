@@ -45,12 +45,14 @@ using namespace android;
 
 namespace qcamera {
 
+typedef cam_manual_capture_type QCameraManualCaptureModes;
+
 class QCameraAdjustFPS
 {
 public:
     virtual int recalcFPSRange(int &minFPS, int &maxFPS,
             const float &minVideoFPS, const float &maxVideoFPs,
-            cam_fps_range_t &adjustedRange) = 0;
+            cam_fps_range_t &adjustedRange, bool bRecordingHint) = 0;
     virtual ~QCameraAdjustFPS() {}
 };
 
@@ -115,6 +117,10 @@ public:
     uint32_t getJpegExifRotation();
     bool useJpegExifRotation();
     int32_t getEffectValue();
+    bool isInstantAECEnabled();
+    bool isInstantCaptureEnabled();
+    uint8_t getAecFrameBoundValue();
+    uint8_t getAecSkipDisplayFrameBound();
 
     int32_t getExifDateTime(String8 &dateTime, String8 &subsecTime);
     int32_t getExifFocalLength(rat_t *focalLenght);
@@ -150,6 +156,7 @@ public:
     int32_t updateRAW(cam_dimension_t max_dim);
     bool isDISEnabled();
     cam_is_type_t getISType();
+    cam_is_type_t getPreviewISType();
     uint8_t getMobicatMask();
 
     cam_focus_mode_type getFocusMode() const;
@@ -177,7 +184,7 @@ public:
 
     const char *getASDStateString(cam_auto_scene_t scene);
     bool isHDRThumbnailProcessNeeded();
-    void setMinPpMask(uint32_t min_pp_mask);
+    void setMinPpMask(cam_feature_mask_t min_pp_mask);
     bool setStreamConfigure(bool isCapture,
             bool previewAsPostview, bool resetConfig);
     int32_t addOnlineRotation(uint32_t rotation, uint32_t streamId,
@@ -186,9 +193,10 @@ public:
     uint8_t getNumOfExtraBuffersForVideo();
     uint8_t getNumOfExtraBuffersForPreview();
     uint32_t getExifBufIndex(uint32_t captureIndex);
-    bool needThumbnailReprocess(uint32_t *pFeatureMask);
+    bool needThumbnailReprocess(cam_feature_mask_t *pFeatureMask);
     bool isUbiFocusEnabled();
     bool isChromaFlashEnabled();
+    bool isHighQualityNoiseReductionMode();
     bool isTruePortraitEnabled();
     size_t getTPMaxMetaSize();
     bool isSeeMoreEnabled();
@@ -221,14 +229,14 @@ public:
     int32_t setIntEvent(cam_int_evt_params_t params);
     bool getofflineRAW();
     int32_t updatePpFeatureMask(cam_stream_type_t stream_type);
-    int32_t getStreamPpMask(cam_stream_type_t stream_type, uint32_t &pp_mask);
+    int32_t getStreamPpMask(cam_stream_type_t stream_type, cam_feature_mask_t &pp_mask);
     int32_t getSharpness();
     int32_t getEffect();
     int32_t updateFlashMode(cam_flash_mode_t flash_mode);
     int32_t configureAEBracketing(cam_capture_frame_config_t &frame_config);
     int32_t configureHDRBracketing(cam_capture_frame_config_t &frame_config);
     int32_t configFrameCapture(bool commitSettings);
-    int32_t resetFrameCapture(bool commitSettings);
+    int32_t resetFrameCapture(bool commitSettings, bool lowLightEnabled);
     cam_still_more_t getStillMoreSettings();
     void setStillMoreSettings(cam_still_more_t stillmore_config);
     cam_still_more_t getStillMoreCapability();
@@ -248,6 +256,11 @@ public:
     int8_t getBufBatchCount();
     int8_t getVideoBatchSize();
 
+    int32_t setManualCaptureMode(
+            QCameraManualCaptureModes value = CAM_MANUAL_CAPTURE_TYPE_OFF);
+    QCameraManualCaptureModes getManualCaptureMode();
+    int64_t getExposureTime();
+
     cam_capture_frame_config_t getCaptureFrameConfig();
     void setJpegRotation(int rotation);
     uint32_t getJpegRotation();
@@ -262,16 +275,29 @@ public:
             cam_sync_related_sensors_event_info_t* info);
     const cam_sync_related_sensors_event_info_t*
             getRelatedCamSyncInfo(void);
+    int32_t setFrameSyncEnabled(bool enable);
+    bool isFrameSyncEnabled(void);
     int32_t getRelatedCamCalibration(
             cam_related_system_calibration_data_t* calib);
     int32_t bundleRelatedCameras(bool sync, uint32_t sessionid);
-    bool isFDInVideoEnabled();
+    uint8_t fdModeInVideo();
+    bool isOEMFeatEnabled();
+
+    int32_t setZslMode(bool value);
+    int32_t updateZSLModeValue(bool value);
 
     bool isReprocScaleEnabled();
     bool isUnderReprocScaling();
     int32_t getPicSizeFromAPK(int &width, int &height);
 
     int32_t checkFeatureConcurrency();
+    int32_t setInstantAEC(uint8_t enable, bool initCommit);
+
+    int32_t getAnalysisInfo(
+        bool fdVideoEnabled,
+        bool hal3,
+        cam_feature_mask_t featureMask,
+        cam_analysis_info_t *pAnalysisInfo);
 private:
     QCameraParameters *mImpl;
     mutable Mutex mLock;

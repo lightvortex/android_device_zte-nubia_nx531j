@@ -296,6 +296,8 @@ typedef struct mm_jpeg_job_session {
   OMX_BUFFERHEADERTYPE *p_in_omx_buf[MM_JPEG_MAX_BUF];
   OMX_BUFFERHEADERTYPE *p_in_omx_thumb_buf[MM_JPEG_MAX_BUF];
   OMX_BUFFERHEADERTYPE *p_out_omx_buf[MM_JPEG_MAX_BUF];
+  OMX_BUFFERHEADERTYPE *p_in_rot_omx_buf[MM_JPEG_MAX_BUF];
+  OMX_BUFFERHEADERTYPE *p_in_rot_omx_thumb_buf[MM_JPEG_MAX_BUF];
 
   OMX_PARAM_PORTDEFINITIONTYPE inputPort;
   OMX_PARAM_PORTDEFINITIONTYPE outputPort;
@@ -324,6 +326,8 @@ typedef struct mm_jpeg_job_session {
   OMX_BOOL encoding;
 
   buffer_t work_buffer;
+  /* src rotate ion bufs */
+  buffer_t src_rot_ion_buffer[MM_JPEG_MAX_BUF];
 
   OMX_EVENTTYPE omxEvent;
   int event_pending;
@@ -343,6 +347,18 @@ typedef struct mm_jpeg_job_session {
 
   int thumb_from_main;
   uint32_t job_index;
+
+  /* lib2d rotation flag*/
+  uint32_t lib2d_rotation_flag;
+
+  /* num of buf for input src rotation */
+  uint32_t num_src_rot_bufs;
+
+  /* src rotate img bufs */
+  mm_jpeg_buf_t src_rot_main_buf[MM_JPEG_MAX_BUF];
+
+  /* lib2d handle*/
+  void *lib2d_handle;
 } mm_jpeg_job_session_t;
 
 typedef struct {
@@ -403,9 +419,13 @@ typedef struct mm_jpeg_obj_t {
   uint32_t num_sessions;
   uint32_t reuse_reproc_buffer;
 
-  /*OTP Data - remains the same per camera session*/
-  cam_related_system_calibration_data_t *calibration_data;
+  cam_jpeg_metadata_t *jpeg_metadata;
 
+  /* Pointer to the session in progress*/
+  mm_jpeg_job_session_t *p_session_inprogress;
+
+  // dummy OMX handle
+  OMX_HANDLETYPE dummy_handle;
 } mm_jpeg_obj;
 
 /** mm_jpeg_pending_func_t:

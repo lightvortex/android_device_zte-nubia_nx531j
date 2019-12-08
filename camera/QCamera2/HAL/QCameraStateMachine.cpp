@@ -130,8 +130,8 @@ QCameraStateMachine::QCameraStateMachine(QCamera2HardwareInterface *ctrl) :
     pthread_setname_np(cmd_pid, "CAM_stMachine");
     m_bDelayPreviewMsgs = false;
     m_DelayedMsgs = 0;
-
-    m_bDisplayFrame = TRUE;
+    m_RestoreZSL = TRUE;
+    m_bPreviewCallbackNeeded = TRUE;
 }
 
 /*===========================================================================
@@ -427,16 +427,36 @@ int32_t QCameraStateMachine::procEvtPreviewStoppedState(qcamera_sm_evt_enum_t ev
             } else {
                 rc = m_parent->updateParameters((char*)payload, needRestart);
             }
-            if (needRestart) {
-                // Clear memory pools
-                m_parent->m_memoryPool.clear();
-            }
-            if (rc == NO_ERROR) {
-                rc = m_parent->commitParameterChanges();
-            }
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_STOP:
+        {
+            m_parent->m_memoryPool.clear();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_COMMIT:
+        {
+            rc = m_parent->commitParameterChanges();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_RESTART:
+        {
+            m_parent->setNeedRestart(false);
+            result.status            = rc;
+            result.request_api       = evt;
+            result.result_type       = QCAMERA_API_RESULT_TYPE_DEF;
             m_parent->signalAPIResult(&result);
         }
         break;
@@ -612,10 +632,18 @@ int32_t QCameraStateMachine::procEvtPreviewStoppedState(qcamera_sm_evt_enum_t ev
             m_parent->signalAPIResult(&result);
         }
         break;
+    case QCAMERA_SM_EVT_RELEASE_RECORIDNG_FRAME:
+        {
+            LOGW("Free video handle %d %d", evt, m_state);
+            QCameraVideoMemory::closeNativeHandle((const void *)payload);
+        }
+    case QCAMERA_SM_EVT_PRE_START_RECORDING:
+    case QCAMERA_SM_EVT_RESTART_STOP_PREVIEW:
+    case QCAMERA_SM_EVT_RESTART_START_PREVIEW:
     case QCAMERA_SM_EVT_START_RECORDING:
     case QCAMERA_SM_EVT_STOP_RECORDING:
-    case QCAMERA_SM_EVT_RELEASE_RECORIDNG_FRAME:
     case QCAMERA_SM_EVT_PREPARE_SNAPSHOT:
+    case QCAMERA_SM_EVT_PRE_TAKE_PICTURE:
     case QCAMERA_SM_EVT_TAKE_PICTURE:
         {
             LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
@@ -697,7 +725,7 @@ int32_t QCameraStateMachine::procEvtPreviewStoppedState(qcamera_sm_evt_enum_t ev
     case QCAMERA_SM_EVT_SNAPSHOT_DONE:
         {
             // No ops, but need to notify
-            LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+            LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
@@ -718,14 +746,14 @@ int32_t QCameraStateMachine::procEvtPreviewStoppedState(qcamera_sm_evt_enum_t ev
                }
                break;
            default:
-               LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+               LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
                break;
            }
        }
        break;
     case QCAMERA_SM_EVT_JPEG_EVT_NOTIFY:
     default:
-        LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+        LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
         break;
     }
 
@@ -822,24 +850,42 @@ int32_t QCameraStateMachine::procEvtPreviewReadyState(qcamera_sm_evt_enum_t evt,
         {
             bool needRestart = false;
             rc = m_parent->updateParameters((char*)payload, needRestart);
-            if (rc == NO_ERROR) {
-                if (needRestart) {
-                    // need restart preview for parameters to take effect
-                    m_parent->unpreparePreview();
-                    // Clear memory pools
-                    m_parent->m_memoryPool.clear();
-                    // commit parameter changes to server
-                    m_parent->commitParameterChanges();
-                    // prepare preview again
-                    rc = m_parent->preparePreview();
-                    if (rc != NO_ERROR) {
-                        m_state = QCAMERA_SM_STATE_PREVIEW_STOPPED;
-                    }
-                } else {
-                    rc = m_parent->commitParameterChanges();
-                }
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_STOP:
+        {
+            LOGD("Stopping preview...");
+            // need restart preview for parameters to take effect
+            m_parent->unpreparePreview();
+            // Clear memory pools
+            m_parent->m_memoryPool.clear();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_COMMIT:
+        {
+            rc = m_parent->commitParameterChanges();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_RESTART:
+        {
+            // prepare preview again
+            rc = m_parent->preparePreview();
+            if (rc != NO_ERROR) {
+                m_state = QCAMERA_SM_STATE_PREVIEW_STOPPED;
             }
-
+            m_parent->setNeedRestart(false);
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
@@ -1006,12 +1052,20 @@ int32_t QCameraStateMachine::procEvtPreviewReadyState(qcamera_sm_evt_enum_t evt,
             m_parent->signalAPIResult(&result);
         }
         break;
+    case QCAMERA_SM_EVT_RELEASE_RECORIDNG_FRAME:
+        {
+            LOGW("Free video handle %d %d", evt, m_state);
+            QCameraVideoMemory::closeNativeHandle((const void *)payload);
+        }
+    case QCAMERA_SM_EVT_PRE_START_RECORDING:
+    case QCAMERA_SM_EVT_RESTART_STOP_PREVIEW:
+    case QCAMERA_SM_EVT_RESTART_START_PREVIEW:
     case QCAMERA_SM_EVT_START_RECORDING:
     case QCAMERA_SM_EVT_STOP_RECORDING:
     case QCAMERA_SM_EVT_PREPARE_SNAPSHOT:
+    case QCAMERA_SM_EVT_PRE_TAKE_PICTURE:
     case QCAMERA_SM_EVT_TAKE_PICTURE:
     case QCAMERA_SM_EVT_CANCEL_PICTURE:
-    case QCAMERA_SM_EVT_RELEASE_RECORIDNG_FRAME:
     case QCAMERA_SM_EVT_RELEASE:
         {
             LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
@@ -1043,7 +1097,7 @@ int32_t QCameraStateMachine::procEvtPreviewReadyState(qcamera_sm_evt_enum_t evt,
     case QCAMERA_SM_EVT_SNAPSHOT_DONE:
         {
             // No ops, but need to notify
-            LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+            LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
@@ -1059,7 +1113,7 @@ int32_t QCameraStateMachine::procEvtPreviewReadyState(qcamera_sm_evt_enum_t evt,
                rc = m_parent->mParameters.updateFlashMode(internal_evt->led_data);
                break;
            default:
-               LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+               LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
                break;
            }
        }
@@ -1067,7 +1121,7 @@ int32_t QCameraStateMachine::procEvtPreviewReadyState(qcamera_sm_evt_enum_t evt,
     case QCAMERA_SM_EVT_JPEG_EVT_NOTIFY:
     case QCAMERA_SM_EVT_THERMAL_NOTIFY:
     default:
-        LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+        LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
         break;
     }
 
@@ -1172,34 +1226,52 @@ int32_t QCameraStateMachine::procEvtPreviewingState(qcamera_sm_evt_enum_t evt,
         {
             bool needRestart = false;
             rc = m_parent->updateParameters((char*)payload, needRestart);
-            if (rc == NO_ERROR) {
-                if (needRestart) {
-                    // need restart preview for parameters to take effect
-                    // stop preview
-                    m_parent->stopPreview();
-                    // Clear memory pools
-                    m_parent->m_memoryPool.clear();
-                    // commit parameter changes to server
-                    m_parent->commitParameterChanges();
-                    // start preview again
-                    rc = m_parent->preparePreview();
-                    if (rc == NO_ERROR) {
-                        applyDelayedMsgs();
-                        rc = m_parent->startPreview();
-                        if (rc != NO_ERROR) {
-                            m_parent->unpreparePreview();
-                        }
-                    }
-                    if (rc != NO_ERROR) {
-                        m_state = QCAMERA_SM_STATE_PREVIEW_STOPPED;
-                    }
-                } else {
-                    rc = m_parent->commitParameterChanges();
-                }
-            }
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_STOP:
+        {
+            LOGD("Stopping preview...");
+            // stop preview
+            rc = m_parent->stopPreview();
+            // Clear memory pools
+            m_parent->m_memoryPool.clear();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_COMMIT:
+        {
+            rc = m_parent->commitParameterChanges();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_RESTART:
+        {
+            // start preview again
+            rc = m_parent->preparePreview();
+            if (rc == NO_ERROR) {
+                applyDelayedMsgs();
+                rc = m_parent->startPreview();
+                if (rc != NO_ERROR) {
+                    m_parent->unpreparePreview();
+                }
+                if (rc != NO_ERROR) {
+                    m_state = QCAMERA_SM_STATE_PREVIEW_STOPPED;
+                }
+            }
+            m_parent->setNeedRestart(false);
+            result.status            = rc;
+            result.request_api       = evt;
+            result.result_type       = QCAMERA_API_RESULT_TYPE_DEF;
             m_parent->signalAPIResult(&result);
         }
         break;
@@ -1314,6 +1386,15 @@ int32_t QCameraStateMachine::procEvtPreviewingState(qcamera_sm_evt_enum_t evt,
             m_parent->signalAPIResult(&result);
         }
         break;
+    case QCAMERA_SM_EVT_PRE_START_RECORDING:
+        {
+            rc = m_parent->preStartRecording();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
     case QCAMERA_SM_EVT_START_RECORDING:
         {
             rc = m_parent->startRecording();
@@ -1348,6 +1429,15 @@ int32_t QCameraStateMachine::procEvtPreviewingState(qcamera_sm_evt_enum_t evt,
             }
         }
         break;
+    case QCAMERA_SM_EVT_PRE_TAKE_PICTURE:
+        {
+            rc = m_parent->preTakePicture();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
     case QCAMERA_SM_EVT_TAKE_PICTURE:
        {
            LOGL("QCAMERA_SM_EVT_TAKE_PICTURE ");
@@ -1364,8 +1454,20 @@ int32_t QCameraStateMachine::procEvtPreviewingState(qcamera_sm_evt_enum_t evt,
                 }
            }
            if (m_parent->isZSLMode() || m_parent->isLongshotEnabled()) {
-               m_state = QCAMERA_SM_STATE_PREVIEW_PIC_TAKING;
-               m_bDelayPreviewMsgs = true;
+               bool restartPreview = m_parent->isPreviewRestartEnabled();
+               if ((restartPreview) && (m_parent->mParameters.getManualCaptureMode()
+                       >= CAM_MANUAL_CAPTURE_TYPE_3)) {
+                   /* stop preview and disable ZSL now */
+                   m_parent->stopPreview();
+                   m_parent->mParameters.updateZSLModeValue(FALSE);
+                   m_RestoreZSL = TRUE;
+                   m_bDelayPreviewMsgs = true;
+                   m_state = QCAMERA_SM_STATE_PIC_TAKING;
+               } else {
+                   m_state = QCAMERA_SM_STATE_PREVIEW_PIC_TAKING;
+                   m_bDelayPreviewMsgs = true;
+               }
+
                rc = m_parent->takePicture();
                if (rc != NO_ERROR) {
                    // move state to previewing state
@@ -1412,16 +1514,23 @@ int32_t QCameraStateMachine::procEvtPreviewingState(qcamera_sm_evt_enum_t evt,
     case QCAMERA_SM_EVT_SEND_COMMAND:
         {
             qcamera_sm_evt_command_payload_t *cmd_payload =
-                (qcamera_sm_evt_command_payload_t *)payload;
+                    (qcamera_sm_evt_command_payload_t *)payload;
             rc = m_parent->sendCommand(cmd_payload->cmd,
-                                       cmd_payload->arg1,
-                                       cmd_payload->arg2);
+                    cmd_payload->arg1,
+                    cmd_payload->arg2);
+            m_bPreviewNeedsRestart =
+                    (QCAMERA_SM_EVT_RESTART_PERVIEW == cmd_payload->arg1);
+            m_bPreviewDelayedRestart =
+                    (QCAMERA_SM_EVT_DELAYED_RESTART == cmd_payload->arg2);
+
 #ifndef VANILLA_HAL
-            if (CAMERA_CMD_LONGSHOT_ON == cmd_payload->cmd) {
-                if (QCAMERA_SM_EVT_RESTART_PERVIEW == cmd_payload->arg1) {
-                    m_parent->stopPreview();
-                    // Clear memory pools
-                    m_parent->m_memoryPool.clear();
+            if ((CAMERA_CMD_LONGSHOT_ON == cmd_payload->cmd) &&
+                    (m_bPreviewNeedsRestart)) {
+                m_parent->stopPreview();
+                // Clear memory pools
+                m_parent->m_memoryPool.clear();
+
+                if (!m_bPreviewDelayedRestart) {
                     // start preview again
                     rc = m_parent->preparePreview();
                     if (rc == NO_ERROR) {
@@ -1430,6 +1539,30 @@ int32_t QCameraStateMachine::procEvtPreviewingState(qcamera_sm_evt_enum_t evt,
                         if (rc != NO_ERROR) {
                             m_parent->unpreparePreview();
                         }
+                    }
+                }
+            }
+#endif
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SEND_COMMAND_RESTART:
+        {
+#ifndef VANILLA_HAL
+            qcamera_sm_evt_command_payload_t *cmd_payload =
+                    (qcamera_sm_evt_command_payload_t *)payload;
+            if ((CAMERA_CMD_LONGSHOT_ON == cmd_payload->cmd) &&
+                    (m_bPreviewNeedsRestart) &&
+                    (m_bPreviewDelayedRestart)) {
+                // start preview again
+                rc = m_parent->preparePreview();
+                if (rc == NO_ERROR) {
+                    rc = m_parent->startPreview();
+                    if (rc != NO_ERROR) {
+                        m_parent->unpreparePreview();
                     }
                 }
             }
@@ -1455,9 +1588,13 @@ int32_t QCameraStateMachine::procEvtPreviewingState(qcamera_sm_evt_enum_t evt,
             m_parent->signalAPIResult(&result);
         }
         break;
+    case QCAMERA_SM_EVT_RELEASE_RECORIDNG_FRAME:
+        {
+            LOGW("Free video handle %d %d", evt, m_state);
+            QCameraVideoMemory::closeNativeHandle((const void *)payload);
+        }
     case QCAMERA_SM_EVT_CANCEL_PICTURE:
     case QCAMERA_SM_EVT_STOP_RECORDING:
-    case QCAMERA_SM_EVT_RELEASE_RECORIDNG_FRAME:
     case QCAMERA_SM_EVT_RELEASE:
         {
             LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
@@ -1544,16 +1681,37 @@ int32_t QCameraStateMachine::procEvtPreviewingState(qcamera_sm_evt_enum_t evt,
     case QCAMERA_SM_EVT_SNAPSHOT_DONE:
         {
             // No ops, but need to notify
-            LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+            LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
             m_parent->signalEvtResult(&result);
         }
        break;
+    case QCAMERA_SM_EVT_RESTART_STOP_PREVIEW:
+        {
+            m_parent->stopPreview();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+       break;
+    case QCAMERA_SM_EVT_RESTART_START_PREVIEW:
+        {
+            rc = m_parent->preparePreview();
+            if (rc == NO_ERROR) {
+                rc = m_parent->startPreview();
+            }
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+       break;
     case QCAMERA_SM_EVT_JPEG_EVT_NOTIFY:
     default:
-        LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+        LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
         break;
     }
 
@@ -1589,6 +1747,9 @@ int32_t QCameraStateMachine::procEvtPrepareSnapshotState(qcamera_sm_evt_enum_t e
     case QCAMERA_SM_EVT_DISABLE_MSG_TYPE:
     case QCAMERA_SM_EVT_MSG_TYPE_ENABLED:
     case QCAMERA_SM_EVT_SET_PARAMS:
+    case QCAMERA_SM_EVT_SET_PARAMS_STOP:
+    case QCAMERA_SM_EVT_SET_PARAMS_COMMIT:
+    case QCAMERA_SM_EVT_SET_PARAMS_RESTART:
     case QCAMERA_SM_EVT_GET_PARAMS:
     case QCAMERA_SM_EVT_PUT_PARAMS:
     case QCAMERA_SM_EVT_PREPARE_PREVIEW:
@@ -1601,7 +1762,11 @@ int32_t QCameraStateMachine::procEvtPrepareSnapshotState(qcamera_sm_evt_enum_t e
     case QCAMERA_SM_EVT_DUMP:
     case QCAMERA_SM_EVT_START_AUTO_FOCUS:
     case QCAMERA_SM_EVT_STOP_AUTO_FOCUS:
+    case QCAMERA_SM_EVT_PRE_START_RECORDING:
+    case QCAMERA_SM_EVT_RESTART_STOP_PREVIEW:
+    case QCAMERA_SM_EVT_RESTART_START_PREVIEW:
     case QCAMERA_SM_EVT_START_RECORDING:
+    case QCAMERA_SM_EVT_PRE_TAKE_PICTURE:
     case QCAMERA_SM_EVT_TAKE_PICTURE:
     case QCAMERA_SM_EVT_PREPARE_SNAPSHOT:
     case QCAMERA_SM_EVT_SEND_COMMAND:
@@ -1648,7 +1813,7 @@ int32_t QCameraStateMachine::procEvtPrepareSnapshotState(qcamera_sm_evt_enum_t e
                 rc = m_parent->processASDUpdate(internal_evt->asd_data);
                 break;
             case QCAMERA_INTERNAL_EVT_LED_MODE_OVERRIDE:
-                LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+                LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
                 break;
             case QCAMERA_INTERNAL_EVT_AWB_UPDATE:
                 rc = m_parent->transAwbMetaToParams(internal_evt->awb_data);
@@ -1681,6 +1846,18 @@ int32_t QCameraStateMachine::procEvtPrepareSnapshotState(qcamera_sm_evt_enum_t e
             switch (cam_evt->server_event_type) {
             case CAM_EVENT_TYPE_DAEMON_DIED:
                 {
+                    // Send internal events to stop indefinite wait on prepare
+                    // snapshot done event.
+                    result.status = rc;
+                    result.request_api = QCAMERA_SM_EVT_PREPARE_SNAPSHOT;
+                    result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+                    m_parent->signalAPIResult(&result);
+
+                    result.status = rc;
+                    result.request_api = QCAMERA_SM_EVT_TAKE_PICTURE;
+                    result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+                    m_parent->signalAPIResult(&result);
+
                     m_parent->sendEvtNotify(CAMERA_MSG_ERROR,
                                             CAMERA_ERROR_SERVER_DIED,
                                             0);
@@ -1696,7 +1873,7 @@ int32_t QCameraStateMachine::procEvtPrepareSnapshotState(qcamera_sm_evt_enum_t e
     case QCAMERA_SM_EVT_SNAPSHOT_DONE:
         {
             // No ops, but need to notify
-            LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+            LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
@@ -1710,7 +1887,7 @@ int32_t QCameraStateMachine::procEvtPrepareSnapshotState(qcamera_sm_evt_enum_t e
         break;
     case QCAMERA_SM_EVT_JPEG_EVT_NOTIFY:
     default:
-        LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+        LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
         break;
     }
 
@@ -1798,12 +1975,35 @@ int32_t QCameraStateMachine::procEvtPicTakingState(qcamera_sm_evt_enum_t evt,
         {
             bool needRestart = false;
             rc = m_parent->updateParameters((char*)payload, needRestart);
-            if (rc == NO_ERROR) {
-                rc = m_parent->commitParameterChanges();
-            }
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_STOP:
+        {
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_COMMIT:
+        {
+            rc = m_parent->commitParameterChanges();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_RESTART:
+        {
+            m_parent->setNeedRestart(false);
+            result.status           =  rc;
+            result.request_api      =  evt;
+            result.result_type      =  QCAMERA_API_RESULT_TYPE_DEF;
             m_parent->signalAPIResult(&result);
         }
         break;
@@ -1938,6 +2138,22 @@ int32_t QCameraStateMachine::procEvtPicTakingState(qcamera_sm_evt_enum_t evt,
             m_parent->signalAPIResult(&result);
         }
         break;
+    case QCAMERA_SM_EVT_PRE_TAKE_PICTURE:
+        {
+           if ( m_parent->isLongshotEnabled() ) {
+               // no ops here, need to singal NO_ERROR
+               rc = NO_ERROR;
+            } else {
+                LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+                rc = INVALID_OPERATION;
+            }
+
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
     case QCAMERA_SM_EVT_TAKE_PICTURE:
         {
            if ( m_parent->isLongshotEnabled() ) {
@@ -1954,6 +2170,9 @@ int32_t QCameraStateMachine::procEvtPicTakingState(qcamera_sm_evt_enum_t evt,
         }
         break;
     case QCAMERA_SM_EVT_PREPARE_SNAPSHOT:
+    case QCAMERA_SM_EVT_PRE_START_RECORDING:
+    case QCAMERA_SM_EVT_RESTART_STOP_PREVIEW:
+    case QCAMERA_SM_EVT_RESTART_START_PREVIEW:
     case QCAMERA_SM_EVT_START_RECORDING:
     case QCAMERA_SM_EVT_STOP_RECORDING:
     case QCAMERA_SM_EVT_RELEASE_RECORIDNG_FRAME:
@@ -1991,7 +2210,7 @@ int32_t QCameraStateMachine::procEvtPicTakingState(qcamera_sm_evt_enum_t evt,
                 rc = m_parent->processASDUpdate(internal_evt->asd_data);
                 break;
             case QCAMERA_INTERNAL_EVT_LED_MODE_OVERRIDE:
-                LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+                LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
                 break;
             case QCAMERA_INTERNAL_EVT_AWB_UPDATE:
                 rc = m_parent->transAwbMetaToParams(internal_evt->awb_data);
@@ -2022,8 +2241,8 @@ int32_t QCameraStateMachine::procEvtPicTakingState(qcamera_sm_evt_enum_t evt,
             switch (cam_evt->server_event_type) {
             case CAM_EVENT_TYPE_DAEMON_DIED:
                 {
-                    // Send internal events to release statemachine
-                    // thread to process CAMERA_ERROR_SERVER_DIED error
+                    // Send internal events to stop indefinite wait on prepare
+                    // snapshot done event.
                     result.status = rc;
                     result.request_api = QCAMERA_SM_EVT_PREPARE_SNAPSHOT;
                     result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
@@ -2040,8 +2259,8 @@ int32_t QCameraStateMachine::procEvtPicTakingState(qcamera_sm_evt_enum_t evt,
                 }
                 break;
             case CAM_EVENT_TYPE_CAC_DONE:
-                if (m_parent->isCACEnabled()) {
-                    LOGD("CAC3 DEBUG : Received CAC Done");
+                if (m_parent->isCACEnabled() || m_parent->mParameters.isOEMFeatEnabled()) {
+                    LOGD("[LONG_SHOT_DBG] : Received CAC Done");
                     if (m_parent->isLongshotEnabled()
                             && !m_parent->isCaptureShutterEnabled()) {
                         // play shutter sound for longshot
@@ -2071,6 +2290,7 @@ int32_t QCameraStateMachine::procEvtPicTakingState(qcamera_sm_evt_enum_t evt,
             rc = m_parent->stopCaptureChannel(restartPreview);
 
             if (restartPreview && (NO_ERROR == rc)) {
+                m_parent->unconfigureAdvancedCapture();
                 rc = m_parent->preparePreview();
                 if (NO_ERROR == rc) {
                     m_parent->m_bPreviewStarted = true;
@@ -2091,6 +2311,17 @@ int32_t QCameraStateMachine::procEvtPicTakingState(qcamera_sm_evt_enum_t evt,
 
             bool restartPreview = m_parent->isPreviewRestartEnabled();
             if (restartPreview) {
+                if (m_parent->mParameters.getManualCaptureMode()
+                        >= CAM_MANUAL_CAPTURE_TYPE_3) {
+                    m_parent->mParameters.updateZSLModeValue(m_RestoreZSL);
+                    m_RestoreZSL = FALSE;
+                    rc = m_parent->preparePreview();
+                    if (NO_ERROR == rc) {
+                        m_parent->m_bPreviewStarted = true;
+                        applyDelayedMsgs();
+                        rc = m_parent->startPreview();
+                    }
+                }
                 m_state = QCAMERA_SM_STATE_PREVIEWING;
             } else {
                 m_state = QCAMERA_SM_STATE_PREVIEW_STOPPED;
@@ -2108,7 +2339,7 @@ int32_t QCameraStateMachine::procEvtPicTakingState(qcamera_sm_evt_enum_t evt,
         }
         break;
     default:
-        LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+        LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
         break;
     }
 
@@ -2204,10 +2435,31 @@ int32_t QCameraStateMachine::procEvtRecordingState(qcamera_sm_evt_enum_t evt,
                     // cannot set parameters that requires restart during recording
                     LOGE("Error!! cannot set parameters that requires restart during recording");
                     rc = BAD_VALUE;
-                } else {
-                    rc = m_parent->commitParameterChanges();
                 }
             }
+            if (rc != NO_ERROR) {
+                m_parent->setNeedRestart(false);
+            }
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_COMMIT:
+        {
+            rc = m_parent->commitParameterChanges();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_STOP:
+    case QCAMERA_SM_EVT_SET_PARAMS_RESTART:
+        {
+            ALOGE("%s: Error!! cannot handle evt(%d) in state(%d)", __func__, evt, m_state);
+            rc = INVALID_OPERATION;
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
@@ -2302,6 +2554,16 @@ int32_t QCameraStateMachine::procEvtRecordingState(qcamera_sm_evt_enum_t evt,
             m_parent->signalAPIResult(&result);
         }
         break;
+    case QCAMERA_SM_EVT_PRE_TAKE_PICTURE:
+        {
+            // No ops here, send NO_ERROR.
+            rc = NO_ERROR;
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
     case QCAMERA_SM_EVT_TAKE_PICTURE:
         {
             m_state = QCAMERA_SM_STATE_VIDEO_PIC_TAKING;
@@ -2316,6 +2578,9 @@ int32_t QCameraStateMachine::procEvtRecordingState(qcamera_sm_evt_enum_t evt,
             m_parent->signalAPIResult(&result);
         }
         break;
+    case QCAMERA_SM_EVT_PRE_START_RECORDING:
+    case QCAMERA_SM_EVT_RESTART_STOP_PREVIEW:
+    case QCAMERA_SM_EVT_RESTART_START_PREVIEW:
     case QCAMERA_SM_EVT_START_RECORDING:
         {
             // no ops here
@@ -2419,7 +2684,7 @@ int32_t QCameraStateMachine::procEvtRecordingState(qcamera_sm_evt_enum_t evt,
                 rc = m_parent->processASDUpdate(internal_evt->asd_data);
                 break;
             case QCAMERA_INTERNAL_EVT_LED_MODE_OVERRIDE:
-                LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+                LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
                 break;
             case QCAMERA_INTERNAL_EVT_AWB_UPDATE:
                 rc = m_parent->transAwbMetaToParams(internal_evt->awb_data);
@@ -2470,7 +2735,7 @@ int32_t QCameraStateMachine::procEvtRecordingState(qcamera_sm_evt_enum_t evt,
     case QCAMERA_SM_EVT_SNAPSHOT_DONE:
         {
             // No ops, but need to notify
-            LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+            LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
@@ -2479,7 +2744,7 @@ int32_t QCameraStateMachine::procEvtRecordingState(qcamera_sm_evt_enum_t evt,
        break;
     case QCAMERA_SM_EVT_JPEG_EVT_NOTIFY:
     default:
-        LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+        LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
         break;
     }
 
@@ -2572,10 +2837,31 @@ int32_t QCameraStateMachine::procEvtVideoPicTakingState(qcamera_sm_evt_enum_t ev
                     // cannot set parameters that requires restart during recording
                     LOGE("Error!! cannot set parameters that requires restart during recording");
                     rc = BAD_VALUE;
-                } else {
-                    rc = m_parent->commitParameterChanges();
                 }
             }
+            if (rc != NO_ERROR) {
+                m_parent->setNeedRestart(false);
+            }
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_COMMIT:
+        {
+            rc = m_parent->commitParameterChanges();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_STOP:
+    case QCAMERA_SM_EVT_SET_PARAMS_RESTART:
+        {
+            ALOGE("%s: Error!! cannot handle evt(%d) in state(%d)", __func__, evt, m_state);
+            rc = INVALID_OPERATION;
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
@@ -2735,11 +3021,15 @@ int32_t QCameraStateMachine::procEvtVideoPicTakingState(qcamera_sm_evt_enum_t ev
             m_parent->signalAPIResult(&result);
         }
         break;
+    case QCAMERA_SM_EVT_PRE_START_RECORDING:
+    case QCAMERA_SM_EVT_RESTART_STOP_PREVIEW:
+    case QCAMERA_SM_EVT_RESTART_START_PREVIEW:
     case QCAMERA_SM_EVT_START_RECORDING:
     case QCAMERA_SM_EVT_PREPARE_PREVIEW:
     case QCAMERA_SM_EVT_START_PREVIEW:
     case QCAMERA_SM_EVT_START_NODISPLAY_PREVIEW:
     case QCAMERA_SM_EVT_PREPARE_SNAPSHOT:
+    case QCAMERA_SM_EVT_PRE_TAKE_PICTURE:
     case QCAMERA_SM_EVT_TAKE_PICTURE:
     case QCAMERA_SM_EVT_RELEASE:
         {
@@ -2774,7 +3064,7 @@ int32_t QCameraStateMachine::procEvtVideoPicTakingState(qcamera_sm_evt_enum_t ev
                 rc = m_parent->processASDUpdate(internal_evt->asd_data);
                 break;
             case QCAMERA_INTERNAL_EVT_LED_MODE_OVERRIDE:
-                LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+                LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
                 break;
             case QCAMERA_INTERNAL_EVT_AWB_UPDATE:
                 rc = m_parent->transAwbMetaToParams(internal_evt->awb_data);
@@ -2840,7 +3130,7 @@ int32_t QCameraStateMachine::procEvtVideoPicTakingState(qcamera_sm_evt_enum_t ev
         }
         break;
     default:
-        LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+        LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
         break;
     }
 
@@ -2917,34 +3207,54 @@ int32_t QCameraStateMachine::procEvtPreviewPicTakingState(qcamera_sm_evt_enum_t 
         {
             bool needRestart = false;
             rc = m_parent->updateParameters((char*)payload, needRestart);
-            if (rc == NO_ERROR) {
-                if (needRestart) {
-                    // need restart preview for parameters to take effect
-                    // stop preview
-                    m_parent->stopPreview();
-                    // Clear memory pools
-                    m_parent->m_memoryPool.clear();
-                    // commit parameter changes to server
-                    m_parent->commitParameterChanges();
-                    // start preview again
-                    rc = m_parent->preparePreview();
-                    if (rc == NO_ERROR) {
-                        applyDelayedMsgs();
-                        rc = m_parent->startPreview();
-                        if (rc != NO_ERROR) {
-                            m_parent->unpreparePreview();
-                        }
-                    }
-                    if (rc != NO_ERROR) {
-                        m_state = QCAMERA_SM_STATE_PIC_TAKING;
-                    }
-                } else {
-                    rc = m_parent->commitParameterChanges();
-                }
-            }
             result.status = rc;
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_STOP:
+        {
+            // need restart preview for parameters to take effect
+            LOGD("Stopping preview...");
+            // stop preview
+            rc = m_parent->stopPreview();
+            // Clear memory pools
+            m_parent->m_memoryPool.clear();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_COMMIT:
+        {
+            // commit parameter changes to server
+            rc = m_parent->commitParameterChanges();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_SET_PARAMS_RESTART:
+        {
+            // start preview again
+            rc = m_parent->preparePreview();
+            if (rc == NO_ERROR) {
+                applyDelayedMsgs();
+                rc = m_parent->startPreview();
+                if (rc != NO_ERROR) {
+                    m_parent->unpreparePreview();
+                }
+            }
+            if (rc != NO_ERROR) {
+                m_state = QCAMERA_SM_STATE_PIC_TAKING;
+            }
+            m_parent->setNeedRestart(false);
+            result.status           =  rc;
+            result.request_api      =  evt;
+            result.result_type      =  QCAMERA_API_RESULT_TYPE_DEF;
             m_parent->signalAPIResult(&result);
         }
         break;
@@ -3087,6 +3397,23 @@ int32_t QCameraStateMachine::procEvtPreviewPicTakingState(qcamera_sm_evt_enum_t 
             m_parent->signalAPIResult(&result);
         }
         break;
+    case QCAMERA_SM_EVT_PRE_START_RECORDING:
+        {
+            if (m_parent->isZSLMode()) {
+                LOGE("Error!! cannot handle evt(%d) in state(%d) in ZSL mode", evt, m_state);
+                rc = INVALID_OPERATION;
+            } else if (m_parent->isLongshotEnabled()) {
+                LOGE("Error!! cannot handle evt(%d) in state(%d) in Longshot mode", evt, m_state);
+                rc = INVALID_OPERATION;
+            } else {
+                rc = m_parent->preStartRecording();
+            }
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
     case QCAMERA_SM_EVT_START_RECORDING:
         {
             if (m_parent->isZSLMode()) {
@@ -3121,6 +3448,22 @@ int32_t QCameraStateMachine::procEvtPreviewPicTakingState(qcamera_sm_evt_enum_t 
             result.request_api = evt;
             result.result_type = QCAMERA_API_RESULT_TYPE_HANDLE;
             result.handle = faceID;
+            m_parent->signalAPIResult(&result);
+        }
+        break;
+    case QCAMERA_SM_EVT_PRE_TAKE_PICTURE:
+        {
+           if ( m_parent->isLongshotEnabled() ) {
+               // no ops here, need to singal NO_ERROR
+               rc = NO_ERROR;
+            } else {
+                LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+                rc = INVALID_OPERATION;
+            }
+
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
             m_parent->signalAPIResult(&result);
         }
         break;
@@ -3230,7 +3573,7 @@ int32_t QCameraStateMachine::procEvtPreviewPicTakingState(qcamera_sm_evt_enum_t 
                 rc = m_parent->processASDUpdate(internal_evt->asd_data);
                 break;
             case QCAMERA_INTERNAL_EVT_LED_MODE_OVERRIDE:
-                LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+                LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
                 break;
             case QCAMERA_INTERNAL_EVT_AWB_UPDATE:
                 rc = m_parent->transAwbMetaToParams(internal_evt->awb_data);
@@ -3261,14 +3604,26 @@ int32_t QCameraStateMachine::procEvtPreviewPicTakingState(qcamera_sm_evt_enum_t 
             switch (cam_evt->server_event_type) {
             case CAM_EVENT_TYPE_DAEMON_DIED:
                 {
+                    // Send internal events to stop indefinite wait on prepare
+                    // snapshot done event.
+                    result.status = rc;
+                    result.request_api = QCAMERA_SM_EVT_PREPARE_SNAPSHOT;
+                    result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+                    m_parent->signalAPIResult(&result);
+
+                    result.status = rc;
+                    result.request_api = QCAMERA_SM_EVT_TAKE_PICTURE;
+                    result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+                    m_parent->signalAPIResult(&result);
+
                     m_parent->sendEvtNotify(CAMERA_MSG_ERROR,
                                             CAMERA_ERROR_SERVER_DIED,
                                             0);
                 }
                 break;
             case CAM_EVENT_TYPE_CAC_DONE:
-                if (m_parent->isCACEnabled()) {
-                    LOGD("CAC3 DEBUG : Received CAC Done");
+                if (m_parent->isCACEnabled() || m_parent->mParameters.isOEMFeatEnabled()) {
+                    LOGD("[LONG_SHOT_DBG] : Received CAC Done");
                     if ((m_parent->isLongshotEnabled())
                             && (!m_parent->isCaptureShutterEnabled())) {
                         // play shutter sound for longshot
@@ -3321,8 +3676,29 @@ int32_t QCameraStateMachine::procEvtPreviewPicTakingState(qcamera_sm_evt_enum_t 
             rc = m_parent->updateThermalLevel(payload);
         }
         break;
+    case QCAMERA_SM_EVT_RESTART_STOP_PREVIEW:
+        {
+            m_parent->stopPreview();
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+       break;
+    case QCAMERA_SM_EVT_RESTART_START_PREVIEW:
+        {
+            rc = m_parent->preparePreview();
+            if (rc == NO_ERROR) {
+                rc = m_parent->startPreview();
+            }
+            result.status = rc;
+            result.request_api = evt;
+            result.result_type = QCAMERA_API_RESULT_TYPE_DEF;
+            m_parent->signalAPIResult(&result);
+        }
+       break;
     default:
-        LOGE("Error!! cannot handle evt(%d) in state(%d)", evt, m_state);
+        LOGW("Cannot handle evt(%d) in state(%d)", evt, m_state);
         break;
     }
 

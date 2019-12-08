@@ -28,9 +28,9 @@ export DEVICE_BRINGUP_YEAR=2019
 MY_DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "${MY_DIR}" ]]; then MY_DIR="${PWD}"; fi
 
-MK_ROOT="${MY_DIR}/../../.."
+HAVOC_ROOT="${MY_DIR}/../../.."
 
-HELPER="${MK_ROOT}/vendor/mk/build/tools/extract_utils.sh"
+HELPER="${HAVOC_ROOT}/vendor/havoc/build/tools/extract_utils.sh"
 if [ ! -f "${HELPER}" ]; then
     echo "Unable to find helper script at ${HELPER}"
     exit 1
@@ -63,7 +63,7 @@ if [ -z "${SRC}" ]; then
 fi
 
 # Initialize the helper for device
-setup_vendor "${DEVICE}" "${VENDOR}" "${MK_ROOT}" true "${CLEAN_VENDOR}"
+setup_vendor "${DEVICE}" "${VENDOR}" "${HAVOC_ROOT}" true "${CLEAN_VENDOR}"
 
 extract "${MY_DIR}"/proprietary-files.txt "${SRC}" "${SECTION}"
 

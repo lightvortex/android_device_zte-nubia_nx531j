@@ -63,7 +63,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.ts.rtmakeup=false \
     persist.camera.stats.test=5 \
     camera.disable_zsl_mode=1 \
-    persist.camera.gyro.disable=0
+    persist.camera.gyro.disable=0 \
     persist.camera.HAL3.enabled=1
 
 # CNE
@@ -77,9 +77,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.data.netmgrd.qos.enable=true \
     ro.use_data_netmgrd=true
 
-# Display
+# Display (Qualcomm AD)
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.vendor.display.cabl=0
+    ro.qcom.ad=1 \
+    ro.qcom.ad.calib.data=/system/etc/calib.cfg \
+    ro.qcom.ad.sensortype=2 \
 
 # DRM
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -92,6 +94,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Graphics
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.egl.hw=1 \
+    debug.gralloc.gfx_ubwc_disable=0 \
+    debug.sf.enable_hwc_vds=1 \
     debug.sf.hw=1 \
     debug.sf.latch_unsignaled=1 \
     dev.pm.dyn_samplingrate=1 \
@@ -114,6 +118,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Media
 PRODUCT_PROPERTY_OVERRIDES += \
     vendor.vidc.enc.disable.pq=true \
+    vendor.video.disable.ubwc=1 \
     vidc.enc.dcvs.extra-buff-count=2
 
 # Memory optimizations
@@ -130,6 +135,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.vendor.extension_library=libqti-perfd-client.so \
     ro.vendor.qti.sys.fw.bg_apps_limit=60
 
+# Priv-app permissions whitelist
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.control_privapp_permissions=enforce
+    
 # Radio
 PRODUCT_PROPERTY_OVERRIDES += \
     DEVICE_PROVISIONED=1 \

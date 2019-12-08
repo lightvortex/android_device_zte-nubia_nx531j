@@ -19,11 +19,10 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- If this is true, the screen will come on when you unplug usb/power/whatever. -->
     <bool name="config_unplugTurnsOnScreen">true</bool>
+
     <!-- Is the notification LED intrusive? Used to decide if there should be a disable option -->
     <bool name="config_intrusiveNotificationLed">true</bool>
 
-    <!-- Whether the device has outdated qti-telephony-common.jar -->
-    <bool name="config_oldQtiTelephony">false</bool>
     <!-- Boolean indicating if restoring network selection should be skipped -->
     <!-- The restoring is handled by modem if it is true-->
     <bool translatable="false" name="skip_restoring_network_selection">true</bool>
@@ -61,16 +60,6 @@
         <item>"bnep\\d"</item>
         <item>"bt-pan"</item>
     </string-array>
-
-    <!-- Array of allowable ConnectivityManager network types for tethering -->
-    <!-- Common options are [1, 4] for TYPE_WIFI and TYPE_MOBILE_DUN or
-         [0,1,5,7] for TYPE_MOBILE, TYPE_WIFI, TYPE_MOBILE_HIPRI and TYPE_BLUETOOTH -->
-    <integer-array translatable="false" name="config_tether_upstream_types">
-        <item>1</item>
-        <item>0</item>
-        <item>5</item>
-        <item>7</item>
-    </integer-array>
 
     <!-- Dhcp range (min, max) to use for tethering purposes -->
     <!-- USB is  192.168.42.1 and 255.255.255.0
@@ -173,61 +162,6 @@
 
     <!-- Wifi driver supports batched scan -->
     <bool translatable="false" name="config_wifi_batched_scan_supported">true</bool>
-
-    <!-- Flag indicating whether the we should enable the automatic brightness in Settings.
-         Software implementation will be used if config_hardware_auto_brightness_available is not set -->
-    <bool name="config_automatic_brightness_available">true</bool>
-
-
-    <integer-array name="config_autoBrightnessLevels">
-        <item>1</item>
-        <item>10</item>
-        <item>50</item>
-        <item>100</item>
-        <item>400</item>
-        <item>900</item>
-        <item>2000</item>
-        <item>5000</item>
-    </integer-array>
-    <integer-array name="config_autoBrightnessLcdBacklightValues">
-        <item>28</item>
-        <item>40</item>
-        <item>90</item>
-        <item>110</item>
-        <item>120</item>
-        <item>132</item>
-        <item>160</item>
-        <item>200</item>
-        <item>225</item>
-    </integer-array>
-
-    <!-- Screen brightness used to dim the screen when the user activity
-         timeout expires.  May be less than the minimum allowed brightness setting
-         that can be set by the user. -->
-    <integer name="config_screenBrightnessDim">1</integer>
-
-    <!-- Default screen brightness setting.
-         Must be in the range specified by minimum and maximum. -->
-    <integer name="config_screenBrightnessSettingDefault">120</integer>
-
-    <!-- Minimum screen brightness setting allowed by the power manager.
-         The user is forbidden from setting the brightness below this level. -->
-    <integer name="config_screenBrightnessSettingMinimum">21</integer>
-
-    <!-- Stability requirements in milliseconds for accepting a new brightness level.  This is used
-         for debouncing the light sensor.  Different constants are used to debounce the light sensor
-         when adapting to brighter or darker environments.  This parameter controls how quickly
-         brightness changes occur in response to an observed change in light level that exceeds the
-         hysteresis threshold. -->
-    <integer name="config_autoBrightnessBrighteningLightDebounce">500</integer>
-    <integer name="config_autoBrightnessDarkeningLightDebounce">500</integer>
-
-    <!-- The maximum range of gamma adjustment possible using the screen
-         auto-brightness adjustment setting. -->
-    <fraction name="config_autoBrightnessAdjustmentMaxGamma">300%</fraction>
-
-    <!-- Period of time in which to consider light samples in milliseconds. -->
-    <integer name="config_autoBrightnessAmbientLightHorizon">10000</integer>
 
     <!-- Configure wifi tcp buffersizes in the form:
          rmem_min,rmem_def,rmem_max,wmem_min,wmem_def,wmem_max -->
@@ -377,54 +311,39 @@
     <!-- Default list of files pinned by the Pinner Service -->
     <string-array translatable="false" name="config_defaultPinnerServiceFiles">
         <item>"/system/framework/arm64/boot-framework.oat"</item>
-        <item>"/system/framework/boot-framework.vdex"</item>
+        <item>"/system/framework/framework.jar"</item>
         <item>"/system/framework/oat/arm64/services.odex"</item>
-        <item>"/system/framework/oat/arm64/services.vdex"</item>
+        <item>"/system/framework/services.jar"</item>
         <item>"/system/framework/arm64/boot.oat"</item>
-        <item>"/system/framework/boot.vdex"</item>
         <item>"/system/framework/arm64/boot-core-libart.oat"</item>
-        <item>"/system/framework/boot-core-libart.vdex"</item>
+        <item>"/apex/com.android.runtime/javalib/core-oj.jar"</item>
+        <item>"/apex/com.android.runtime/javalib/core-libart.jar"</item>
+        <item>"/apex/com.android.media/javalib/updatable-media.jar"</item>
+        <item>"/product/priv-app/SystemUI/SystemUI.apk"</item>
+        <item>"/product/priv-app/SystemUI/oat/arm64/SystemUI.odex"</item>
+        <item>"/system/lib64/libsurfaceflinger.so"</item>
     </string-array>
 
     <!-- Should the pinner service pin the Camera application? -->
     <bool name="config_pinnerCameraApp">true</bool>
 
+    <!-- Should the pinner service pin the Home application? -->
+    <bool name="config_pinnerHomeApp">true</bool>
+
+    <!-- List of files pinned by the Pinner Service with the apex boot image b/119800099 -->
+    <string-array translatable="false" name="config_apexBootImagePinnerServiceFiles">
+        <item>"/system/framework/framework.jar"</item>
+        <item>"/system/framework/services.jar"</item>
+        <item>"/system/framework/arm64/apex.oat"</item>
+        <item>"/system/framework/arm64/apex-core-libart.oat"</item>
+        <item>"/apex/com.android.runtime/javalib/core-oj.jar"</item>
+        <item>"/apex/com.android.runtime/javalib/core-libart.jar"</item>
+        <item>"/apex/com.android.media/javalib/updatable-media.jar"</item>
+        <item>"/system/priv-app/SystemUI/SystemUI.apk"</item>
+        <item>"/system/lib64/libsurfaceflinger.so"</item>
+    </string-array>
+
     <!-- Boolean indicating whether the HWC setColorTransform function can be performed efficiently
          in hardware. -->
     <bool name="config_setColorTransformAccelerated">true</bool>
-
-    <!-- Button backlight -->
-    <bool name="config_deviceHasVariableButtonBrightness">true</bool>
-
-    <!-- Whether to cleanup fingerprints upon connection to the daemon and when user switches -->
-    <bool name="config_cleanupUnusedFingerprints">false</bool>
-    
-    <!-- Control whether the always on display mode is available. This should only be enabled on
-         devices where the display has be tuned to be power efficient in DOZE and/or DOZE_SUSPEND
-         states. -->
-    <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>
-
-    <!-- Whether the display blanks itself when transitioning from a doze to a non-doze state -->
-    <bool name="config_displayBlanksAfterDoze">true</bool>
-
-    <!-- Specify custom blanking delay of the display -->
-    <integer name="config_screen_off_delay">0</integer>
-
-
-    <!-- Allow automatic adjusting of the screen brightness while dozing in low power state. -->
-    <bool name="config_allowAutoBrightnessWhileDozing">true</bool>
-
-    <!-- Minimum screen brightness setting allowed by the power manager.
-         The user is forbidden from setting the brightness below this level. -->
-    <integer name="config_screenBrightnessSettingMinimum">1</integer>
-
-   <!-- Enable ACS (auto channel selection) for Wifi hotspot (SAP) -->
-   <bool translatable="false" name="config_wifi_softap_acs_supported">true</bool>
-
-   <!-- Enable 802.11ac for Wifi hotspot (SAP) -->
-   <bool translatable="false" name="config_wifi_softap_ieee80211ac_supported">true</bool>
-
-
-
-
 </resources>

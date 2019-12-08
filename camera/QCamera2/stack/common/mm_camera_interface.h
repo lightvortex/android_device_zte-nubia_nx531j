@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -45,6 +45,8 @@
 #define PAD_TO_SIZE(size, padding) \
         ((size + (typeof(size))(padding - 1)) & \
         (typeof(size))(~(padding - 1)))
+
+#define CEIL_DIVISION(n, d) ((n+d-1)/d)
 
 /** CAM_DUMP_TO_FILE:
  *  @filename: file name
@@ -117,6 +119,7 @@ typedef struct {
 *    @frame_len : length of the whole frame, to be filled during
 *               mem allocation
 *    @mem_info : user specific pointer to additional mem info
+*    @flags:  v4l2_buffer flags, used to report error in data buffers
 **/
 typedef struct mm_camera_buf_def {
     uint32_t stream_id;
@@ -134,6 +137,7 @@ typedef struct mm_camera_buf_def {
     void *buffer;
     size_t frame_len;
     void *mem_info;
+    uint32_t flags;
 } mm_camera_buf_def_t;
 
 /** mm_camera_super_buf_t: super buf structure for bundled
@@ -374,6 +378,8 @@ typedef enum {
 *                     queue
 *    @enable_frame_sync: Enables frame sync for dual camera
 *    @priority : save matched priority frames only
+*    @user_expected_frame_id : Number of frames, camera interface
+*                     will wait for getting the instant capture frame.
 **/
 typedef struct {
     mm_camera_super_buf_notify_mode_t notify_mode;
@@ -383,6 +389,7 @@ typedef struct {
     uint8_t max_unmatched_frames;
     uint8_t enable_frame_sync;
     mm_camera_super_buf_priority_t priority;
+    uint8_t user_expected_frame_id;
 } mm_camera_channel_attr_t;
 
 typedef struct {
@@ -738,6 +745,24 @@ typedef struct {
                      uint32_t ch_id,
                      mm_camera_buf_def_t *buf);
 
+    /** cancel_buffer: fucntion definition for recalling a frame
+     *        buffer from the kernel this is most likely when h/w
+     *        failed to use this buffer and dropped the frame we use
+     *        this API to recall the buffer and return it to the
+     *        framework
+     *    @camera_handle : camer handler
+     *    @ch_id : channel handler
+     *    @stream_id : stream handle
+     *    @buf : a frame buffer to be queued back to kernel
+     *  Return value: 0 -- success
+     *                -1 -- failure
+     **/
+    int32_t (*cancel_buffer) (uint32_t camera_handle,
+                     uint32_t ch_id,
+                     uint32_t stream_id,
+                     uint32_t buf_idx);
+
+
     /** get_queued_buf_count: fucntion definition for querying queued buf count
      *    @camera_handle : camer handler
      *    @ch_id : channel handler
@@ -876,8 +901,9 @@ int32_t mm_stream_calc_offset_preview(cam_stream_info_t *stream_info,
         cam_padding_info_t *padding,
         cam_stream_buf_plane_info_t *buf_planes);
 
-int32_t mm_stream_calc_offset_post_view(cam_format_t fmt,
+int32_t mm_stream_calc_offset_post_view(cam_stream_info_t *stream_info,
         cam_dimension_t *dim,
+        cam_padding_info_t *padding,
         cam_stream_buf_plane_info_t *buf_planes);
 
 int32_t mm_stream_calc_offset_snapshot(cam_format_t fmt,

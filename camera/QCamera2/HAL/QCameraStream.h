@@ -31,7 +31,7 @@
 #define __QCAMERA_STREAM_H__
 
 // Camera dependencies
-#include "camera.h"
+#include "hardware/camera.h"
 #include "QCameraCmdThread.h"
 #include "QCameraMem.h"
 #include "QCameraAllocator.h"
@@ -116,6 +116,7 @@ public:
     static void releaseFrameData(void *data, void *user_data);
     int32_t configStream();
     bool isDeffered() const { return mDefferedAllocation; }
+    bool isSyncCBEnabled() {return mSyncCBEnabled;};
     void deleteStream();
 
     uint8_t getBufferCount() { return mNumBufs; }
@@ -232,6 +233,7 @@ private:
             mm_camera_buf_def_t **bufs,
             mm_camera_map_unmap_ops_tbl_t *ops_tbl);
     int32_t putBufs(mm_camera_map_unmap_ops_tbl_t *ops_tbl);
+    int32_t putBufsDeffered();
 
     /* Used for deffered allocation of buffers */
     int32_t allocateBatchBufs(cam_frame_len_offset_t *offset,
@@ -261,6 +263,8 @@ private:
     uint32_t mAllocTaskId;
     BackgroundTask mMapTask;
     uint32_t mMapTaskId;
+
+    bool mSyncCBEnabled;
 };
 
 }; // namespace qcamera
