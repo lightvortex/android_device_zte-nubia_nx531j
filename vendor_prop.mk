@@ -58,6 +58,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Camera
 PRODUCT_PROPERTY_OVERRIDES += \
+    vendor.camera.aux.packagelist=com.android.camera,org.lineageos.snap,com.google.android.GoogleCameraTele \
     vendor.camera.hal1.packagelist=com.whatsapp,com.intsig.camscanner \
     persist.ts.postmakeup=false \
     persist.ts.rtmakeup=false \
@@ -77,35 +78,31 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.data.netmgrd.qos.enable=true \
     ro.use_data_netmgrd=true
 
-# Display (Qualcomm AD)
+# Display
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.qcom.ad=1 \
-    ro.qcom.ad.calib.data=/system/etc/calib.cfg \
-    ro.qcom.ad.sensortype=2 \
+    ro.vendor.display.cabl=0
 
 # DRM
 PRODUCT_PROPERTY_OVERRIDES += \
     drm.service.enabled=true
 
 # FRP
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.frp.pst=/dev/block/bootdevice/by-name/frp
+#PRODUCT_PROPERTY_OVERRIDES += \
+#    ro.frp.pst=/dev/block/bootdevice/by-name/frp
 
 # Graphics
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.egl.hw=1 \
-    debug.gralloc.gfx_ubwc_disable=0 \
-    debug.sf.enable_hwc_vds=1 \
     debug.sf.hw=1 \
     debug.sf.latch_unsignaled=1 \
     dev.pm.dyn_samplingrate=1 \
     persist.demo.hdmirotationlock=false \
     persist.hwc.enable_vds=1 \
+    persist.sys.wfd.virtual=0 \
     ro.opengles.version=196610 \
     ro.sf.lcd_density=480 \
     vendor.display.disable_rotator_split=1 \
     vendor.display.disable_skip_validate=1 \
-    vendor.gralloc.disable_wb_ubwc=1 \
     vendor.display.enable_default_color_mode=1 \
     vendor.display.perf_hint_window=50 \
     vendor.gralloc.enable_fb_ubwc=1

@@ -19,6 +19,7 @@
 /dev/block/bootdevice/by-name/misc           /misc              emmc    defaults                                                    defaults
 /dev/block/zram0                             none               swap    defaults                                                    zramsize=536870912,max_comp_streams=4
 /mnt/vendor/persist                          /persist           none    bind                                                        wait
+/dev/block/bootdevice/by-name/frp            /frp               emmc    defaults                                                    defaults
 
 /devices/soc/74a4900.sdhci/mmc_host*    /storage/sdcard1  vfat    nosuid,nodev                                        wait,voldmanaged=sdcard1:auto,encryptable=footer
 /devices/soc/6a00000.ssusb/6a00000.dwc3/xhci-hcd.0.auto/usb1*       auto               auto    defaults                                                    voldmanaged=usb:auto
