@@ -1,10 +1,6 @@
 /*
- *
- *  Copyright (c) 2013, The Linux Foundation. All rights reserved.
- *  Not a Contribution, Apache license notifications and license are retained
- *  for attribution purposes only.
- *
  * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (C) 2016 The CyanogenMod Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,17 +23,25 @@
 #include <cutils/properties.h>
 #include <string.h>
 
+static inline const char* BtmGetDefaultName()
+{
+    char product_device[PROPERTY_VALUE_MAX];
+    property_get("ro.product.device", product_device, "");
+
+    if (strstr(product_device, "nx531j"))
+        return "Nubia Z11";
+
+    // Fallback to ro.product.model
+    return "Havoc-NX531j";
+}
+
 #define BTM_DEF_LOCAL_NAME BtmGetDefaultName()
 #define BLUETOOTH_QTI_SW TRUE
+// Disables read remote device feature
 #define MAX_ACL_CONNECTIONS   16
 #define MAX_L2CAP_CHANNELS    16
 #define BLE_VND_INCLUDED   TRUE
+// skips conn update at conn completion
 #define BT_CLEAN_TURN_ON_DISABLED 1
-
-/* Increasing SEPs to 12 from 6 to support SHO/MCast i.e. two streams per codec */
-#define AVDT_NUM_SEPS 12
-
-#undef PROPERTY_VALUE_MAX
 #pragma pop_macro("PROPERTY_VALUE_MAX")
-
 #endif
