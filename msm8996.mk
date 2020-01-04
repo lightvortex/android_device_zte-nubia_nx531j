@@ -373,7 +373,7 @@ PRODUCT_PACKAGES += \
 
 # Biometrics
 PRODUCT_PACKAGES += \
-    android.hardware.biometrics.fingerprint@2.0-service.nx531j
+    android.hardware.biometrics.fingerprint@2.1-service.nx531j
 
 # VNDK
 # PRODUCT_PACKAGES += \
