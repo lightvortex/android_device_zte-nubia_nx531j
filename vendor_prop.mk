@@ -182,7 +182,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Wifi
 PRODUCT_PROPERTY_OVERRIDES += \
-    wifi.interface=wlan0
+    wifi.interface=wlan0 \
     wifi.direct.interface=p2p-dev-wlan0
 
 # Maintainer
