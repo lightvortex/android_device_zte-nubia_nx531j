@@ -38,6 +38,9 @@ PRODUCT_AAPT_PREF_CONFIG := xxhdpi
 TARGET_SCREEN_HEIGHT := 1920
 TARGET_SCREEN_WIDTH := 1080
 
+# Dalvik
+$(call inherit-product, frameworks/native/build/phone-xhdpi-4096-dalvik-heap.mk )
+
 # Permissions
 PRODUCT_COPY_FILES += \
     external/ant-wireless/antradio-library/com.dsi.ant.antradio_library.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/com.dsi.ant.antradio_library.xml \
@@ -92,6 +95,19 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     AntHalService \
     com.dsi.ant.antradio_library
+    
+
+# Bluetooth
+PRODUCT_PACKAGES += \
+    audio.bluetooth.default \
+    android.hardware.bluetooth.audio@2.0-impl \
+    liba2dpoffload \
+    libbthost_if \
+    libhdmiedid \
+    libhfp \
+    libldacBT_dec \
+    libsndmonitor \
+    vendor.qti.hardware.bluetooth_audio@2.0.vendor
 
 # Audio
 PRODUCT_PACKAGES += \
@@ -320,9 +336,23 @@ PRODUCT_PACKAGES += \
 
 # RIL
 PRODUCT_PACKAGES += \
-    libprotobuf-cpp-full \
+    android.hardware.radio@1.4 \
+    android.hardware.radio@1.2 \
+    android.hardware.radio.config@1.0 \
+    android.hardware.secure_element@1.0 \
     librmnetctl \
-    libxml2
+    libxml2 \
+    libprotobuf-cpp-full \
+    qti-telephony-hidl-wrapper \
+    qti_telephony_hidl_wrapper.xml \
+    qti-telephony-utils \
+    qti_telephony_utils.xml \
+    rild \
+    telephony-ext
+
+# RIL JAR
+PRODUCT_BOOT_JARS += \
+    telephony-ext
 
 # Seccomp policy
 PRODUCT_COPY_FILES += \
@@ -346,14 +376,15 @@ PRODUCT_PACKAGES += \
 PRODUCT_SOONG_NAMESPACES += \
     $(LOCAL_PATH)
 
-# Telephony
+
+# IMS
 PRODUCT_PACKAGES += \
     ims-ext-common_system \
-    telephony-ext
+    ims_ext_common.xml \
 
+# IMS JAR
 PRODUCT_BOOT_JARS += \
-    ims-ext-common_system \
-    telephony-ext
+    ims-ext-common_system
 
 # TextClassifier
 PRODUCT_PACKAGES += \
