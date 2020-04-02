@@ -57,6 +57,8 @@ typedef struct {
     bool reproc_frame_release;       // false release original buffer, true don't release it
     mm_camera_buf_def_t *src_reproc_bufs;
     QCameraExif *pJpegExifObj;
+    uint8_t offline_buffer;
+    mm_camera_buf_def_t *offline_reproc_buf; //HAL processed buffer
 } qcamera_jpeg_data_t;
 
 
@@ -70,12 +72,15 @@ typedef struct {
 typedef struct {
     uint32_t jobId;                  // job ID
     int8_t reprocCount;              //Current pass count
+    int8_t ppChannelIndex;           //Reprocess channel object index
     mm_camera_super_buf_t *src_frame;// source frame
     bool reproc_frame_release;       // false release original buffer
                                      // true don't release it
     mm_camera_buf_def_t *src_reproc_bufs;
     mm_camera_super_buf_t *src_reproc_frame;// source frame (need to be
                                             //returned back to kernel after done)
+    uint8_t offline_buffer;
+    mm_camera_buf_def_t *offline_reproc_buf; //HAL processed buffer
 } qcamera_pp_data_t;
 
 typedef struct {
@@ -140,6 +145,12 @@ public:
     int32_t setJpegHandle(mm_jpeg_ops_t *pJpegHandle,
             mm_jpeg_mpo_ops_t* pJpegMpoHandle, uint32_t clientHandle);
     int32_t createJpegSession(QCameraChannel *pSrcChannel);
+
+    int8_t getPPChannelCount() {return mPPChannelCount;};
+    mm_camera_buf_def_t *getOfflinePPInputBuffer(
+            mm_camera_super_buf_t *src_frame);
+    QCameraMemory *mOfflineDataBufs;
+
 private:
     int32_t sendDataNotify(int32_t msg_type,
             camera_memory_t *data,
@@ -166,6 +177,8 @@ private:
     int32_t syncStreamParams(mm_camera_super_buf_t *frame,
             mm_camera_super_buf_t *reproc_frame);
     void releaseSuperBuf(mm_camera_super_buf_t *super_buf);
+    void releaseSuperBuf(mm_camera_super_buf_t *super_buf,
+            cam_stream_type_t stream_type);
     static void releaseNotifyData(void *user_data,
                                   void *cookie,
                                   int32_t cb_status);
@@ -188,7 +201,6 @@ private:
 
     int32_t doReprocess();
     int32_t stopCapture();
-
 private:
     QCamera2HardwareInterface *m_parent;
     jpeg_encode_callback_t     mJpegCB;
@@ -202,7 +214,7 @@ private:
     QCameraExif *              m_pJpegExifObj;
     uint32_t                   m_bThumbnailNeeded;
 
-    int8_t                     mTotalNumReproc;
+    int8_t                     mPPChannelCount;
     QCameraReprocessChannel    *mPPChannels[CAM_PP_CHANNEL_MAX];
 
     camera_memory_t *          m_DataMem; // save frame mem pointer
@@ -227,6 +239,7 @@ private:
     int32_t m_bufCountPPQ;
     Vector<mm_camera_buf_def_t *> m_InputMetadata; // store input metadata buffers for AOST cases
     size_t m_PPindex;                   // counter for each incoming AOST buffer
+    pthread_mutex_t m_reprocess_lock;   // lock to ensure reprocess job is not freed early.
 
 public:
     cam_dimension_t m_dst_dim;

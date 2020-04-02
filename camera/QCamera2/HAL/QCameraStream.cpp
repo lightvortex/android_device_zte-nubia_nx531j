@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2017, The Linux Foundation. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are
@@ -175,11 +175,16 @@ int32_t QCameraStream::put_bufs(
  *==========================================================================*/
 int32_t QCameraStream::put_bufs_deffered(
         mm_camera_map_unmap_ops_tbl_t * /*ops_tbl */,
-        void * /*user_data*/ )
+        void * user_data )
 {
-    // No op
-    // Used for handling buffers with deffered allocation. They are freed separately.
-    return NO_ERROR;
+    QCameraStream *stream = reinterpret_cast<QCameraStream *>(user_data);
+
+    if (!stream) {
+        LOGE("put_bufs_deffered invalid stream pointer");
+        return NO_MEMORY;
+    }
+
+    return stream->putBufsDeffered();
 }
 
 /*===========================================================================
@@ -334,7 +339,8 @@ QCameraStream::QCameraStream(QCameraAllocator &allocator,
         mDefferedAllocation(deffered),
         wait_for_cond(false),
         mAllocTaskId(0),
-        mMapTaskId(0)
+        mMapTaskId(0),
+        mSyncCBEnabled(false)
 {
     mMemVtbl.user_data = this;
     if ( !deffered ) {
@@ -363,8 +369,14 @@ QCameraStream::QCameraStream(QCameraAllocator &allocator,
     mFirstTimeStamp = 0;
     memset (&mStreamMetaMemory, 0,
             (sizeof(MetaMemory) * CAMERA_MIN_VIDEO_BATCH_BUFFERS));
+    pthread_condattr_t mCondAttr;
+
+    pthread_condattr_init(&mCondAttr);
+    pthread_condattr_setclock(&mCondAttr, CLOCK_MONOTONIC);
+
     pthread_mutex_init(&m_lock, NULL);
-    pthread_cond_init(&m_cond, NULL);
+    pthread_cond_init(&m_cond, &mCondAttr);
+    pthread_condattr_destroy(&mCondAttr);
 }
 
 /*===========================================================================
@@ -385,7 +397,7 @@ QCameraStream::~QCameraStream()
     mAllocator.waitForBackgroundTask(mMapTaskId);
     if (mBufAllocPid != 0) {
         cond_signal(true);
-        LOGL("Wait for buf allocation thread to join");
+        LOGL("Wait for buf allocation thread dead");
         // Wait for the allocation of additional stream buffers
         pthread_join(mBufAllocPid, NULL);
         mBufAllocPid = 0;
@@ -751,7 +763,6 @@ int32_t QCameraStream::init(QCameraHeapMemory *streamInfoBuf,
 err1:
     mCamOps->delete_stream(mCamHandle, mChannelHandle, mHandle);
     mHandle = 0;
-    mNumBufs = 0;
 done:
     return rc;
 }
@@ -792,8 +803,9 @@ int32_t QCameraStream::calcOffset(cam_stream_info_t *streamInfo)
                 &streamInfo->buf_planes);
         break;
     case CAM_STREAM_TYPE_POSTVIEW:
-        rc = mm_stream_calc_offset_post_view(streamInfo->fmt,
+        rc = mm_stream_calc_offset_post_view(streamInfo,
                 &dim,
+                &mPaddingInfo,
                 &streamInfo->buf_planes);
         break;
     case CAM_STREAM_TYPE_SNAPSHOT:
@@ -1024,7 +1036,7 @@ void QCameraStream::dataNotifySYNCCB(mm_camera_super_buf_t *recvd_frame,
         LOGE("Not a valid stream to handle buf");
         return;
     }
-    if (stream->mSYNCDataCB != NULL)
+    if ((stream->mSyncCBEnabled) && (stream->mSYNCDataCB != NULL))
         stream->mSYNCDataCB(recvd_frame, stream, stream->mUserData);
     return;
 }
@@ -1897,6 +1909,14 @@ int32_t QCameraStream::releaseBuffs()
 {
     int rc = NO_ERROR;
 
+    if (mBufAllocPid != 0) {
+        cond_signal(true);
+        LOGD("wait for buf allocation thread dead");
+        pthread_join(mBufAllocPid, NULL);
+        mBufAllocPid = 0;
+        LOGD("return from buf allocation thread");
+    }
+
     if (mStreamInfo->streaming_mode == CAM_STREAMING_MODE_BATCH) {
         return releaseBatchBufs(NULL);
     }
@@ -2120,6 +2140,31 @@ int32_t QCameraStream::putBufs(mm_camera_map_unmap_ops_tbl_t *ops_tbl)
 }
 
 /*===========================================================================
+ * FUNCTION   : putBufsDeffered
+ *
+ * DESCRIPTION: function to deallocate deffered stream buffers
+ *
+ * PARAMETERS : none
+ *
+ * RETURN     : int32_t type of status
+ *              NO_ERROR  -- success
+ *              none-zero failure code
+ *==========================================================================*/
+int32_t QCameraStream::putBufsDeffered()
+{
+    if (mBufAllocPid != 0) {
+        cond_signal(true);
+        LOGH("%s: wait for buf allocation thread dead", __func__);
+        // Wait for the allocation of additional stream buffers
+        pthread_join(mBufAllocPid, NULL);
+        mBufAllocPid = 0;
+        LOGH("%s: return from buf allocation thread", __func__);
+    }
+    // Deallocation of the deffered stream buffers handled separately
+    return NO_ERROR;
+}
+
+/*===========================================================================
  * FUNCTION   : invalidateBuf
  *
  * DESCRIPTION: invalidate a specific stream buffer
@@ -2272,7 +2317,8 @@ int32_t QCameraStream::getFrameOffset(cam_frame_len_offset_t &offset)
     }
 
     offset = mFrameLenOffset;
-    if ((ROTATE_90 == mOnlineRotation) || (ROTATE_270 == mOnlineRotation)) {
+    if ((ROTATE_90 == mOnlineRotation) || (ROTATE_270 == mOnlineRotation)
+            || (offset.frame_len == 0) || (offset.num_planes == 0)) {
         // Re-calculate frame offset in case of online rotation
         cam_stream_info_t streamInfo = *mStreamInfo;
         getFrameDimension(streamInfo.dim);
@@ -2619,11 +2665,17 @@ int32_t QCameraStream::configStream()
  *==========================================================================*/
 int32_t QCameraStream::setSyncDataCB(stream_cb_routine data_cb)
 {
+    int32_t rc = NO_ERROR;
+
     if (mCamOps != NULL) {
         mSYNCDataCB = data_cb;
-        return mCamOps->register_stream_buf_cb(mCamHandle,
+        rc = mCamOps->register_stream_buf_cb(mCamHandle,
                 mChannelHandle, mHandle, dataNotifySYNCCB, MM_CAMERA_STREAM_CB_TYPE_SYNC,
                 this);
+        if (rc == NO_ERROR) {
+            mSyncCBEnabled = TRUE;
+            return rc;
+        }
     }
     LOGE("Interface handle is NULL");
     return UNKNOWN_ERROR;

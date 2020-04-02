@@ -1,4 +1,4 @@
-/* Copyright (c) 2012, 2016, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2016, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -27,12 +27,38 @@
  *
  */
 
-#ifndef __MM_QCAMERA_DBG_H__
-#define __MM_QCAMERA_DBG_H__
+#ifndef __QCAMERA_COMMON_H__
+#define __QCAMERA_COMMON_H__
 
-#ifdef QCAMERA_REDEFINE_LOG
-#define CAM_MODULE CAM_HAL_MODULE
-#include "mm_camera_dbg.h"
-#endif
+#include <utils/Timers.h>
 
-#endif /* __MM_QCAMERA_DBG_H__ */
+// Camera dependencies
+#include "cam_types.h"
+#include "cam_intf.h"
+
+namespace qcamera {
+
+#define ALIGN(a, b) (((a) + (b)) & ~(b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+class QCameraCommon {
+public:
+    QCameraCommon();
+    ~QCameraCommon();
+
+    int32_t init(cam_capability_t *cap);
+
+    int32_t getAnalysisInfo(
+        bool fdVideoEnabled, bool hal3, cam_feature_mask_t featureMask,
+        cam_analysis_info_t *pAnalysisInfo);
+    static uint32_t calculateLCM(int32_t num1, int32_t num2);
+    static nsecs_t getBootToMonoTimeOffset();
+
+private:
+    cam_capability_t *m_pCapability;
+
+};
+
+}; // namespace qcamera
+#endif /* __QCAMERA_COMMON_H__ */
+
