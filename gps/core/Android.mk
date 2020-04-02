@@ -14,6 +14,8 @@ LOCAL_SHARED_LIBRARIES := \
     liblog \
     libutils \
     libcutils \
+    liblog \
+    libprocessgroup \
     libgps.utils \
     libdl \
     liblog
