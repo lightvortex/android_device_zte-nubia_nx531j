@@ -96,7 +96,7 @@ on boot
     chmod 0644 /sys/class/hall_device/hall_device/enable
     #fingerprint
     mkdir /dev/fpcSocket 0770 system system
-    chmod -R 0777 /dev/fpcSocket
+    chmod 0777 /dev/fpcSocket
     chown system system /sys/bus/platform/devices/1.fpc1020/irq
     chown system system /sys/bus/platform/devices/1.fpc1020/wakeup_enable
     #ir remote
@@ -188,27 +188,27 @@ on boot
     chown system system /sys/class/light/light/dump_tp_parameter
     chown system system /sys/class/light/light/dev_init
 
-    chmod 0644 system system /sys/class/light/light/enable
-    chmod 0644 system system /sys/class/light/light/tp_cfg
-    chmod 0644 system system /sys/class/light/light/fac_calibrate
-    chmod 0644 system system /sys/class/light/light/calibrate
-    chmod 0644 system system /sys/class/light/light/chip_name
-    chmod 0644 system system /sys/class/light/light/light_value
-    chmod 0644 system system /sys/class/light/light/delay
-    chmod 0644 system system /sys/class/light/light/red_data
-    chmod 0644 system system /sys/class/light/light/blue_data
-    chmod 0644 system system /sys/class/light/light/green_data
-    chmod 0644 system system /sys/class/light/light/clear_data
-    chmod 0644 system system /sys/class/light/light/dump_reg
-    chmod 0644 system system /sys/class/light/light/module_tpcolor
-    chmod 0644 system system /sys/class/light/light/dump_tp_parameter
-    chown 0644 system system /sys/class/light/light/dev_init
+    chmod 0644 /sys/class/light/light/enable
+    chmod 0644 /sys/class/light/light/tp_cfg
+    chmod 0644 /sys/class/light/light/fac_calibrate
+    chmod 0644 /sys/class/light/light/calibrate
+    chmod 0644 /sys/class/light/light/chip_name
+    chmod 0644 /sys/class/light/light/light_value
+    chmod 0644 /sys/class/light/light/delay
+    chmod 0644 /sys/class/light/light/red_data
+    chmod 0644 /sys/class/light/light/blue_data
+    chmod 0644 /sys/class/light/light/green_data
+    chmod 0644 /sys/class/light/light/clear_data
+    chmod 0644 /sys/class/light/light/dump_reg
+    chmod 0644 /sys/class/light/light/module_tpcolor
+    chmod 0644 /sys/class/light/light/dump_tp_parameter
+    chown 0644 /sys/class/light/light/dev_init
 
     #temperature
     chown system system /sys/class/temperature/temperature/enable
     chown system system /sys/class/temperature/temperature/temperature_poll_time
 
-    chmod 0644 system /sys/class/temperature/temperature/enable
+    chmod 0644 /sys/class/temperature/temperature/enable
     chmod 0644 /sys/class/temperature/temperature/temperature_data
 
 
@@ -216,7 +216,7 @@ on boot
     chown system system /sys/class/humidity/humidity/enable
     chown system system /sys/class/humidity/humidity/humidity_poll_time
 
-    chmod 0644 system /sys/class/humidity/humidity/enable
+    chmod 0644 /sys/class/humidity/humidity/enable
     chmod 0644 /sys/class/humidity/humidity/humidity_data
 
     #sensor_common
@@ -233,16 +233,16 @@ on boot
     # add end
 
 on property:sys.boot_mode=ffbm
-    write -p /dev/block /dev/block/bootdevice/by-name/misc "ffbm-01"
+    write /dev/block/bootdevice/by-name/misc "ffbm-01"
 
 on property:sys.boot_mode=normal
-    write -p /dev/block /dev/block/bootdevice/by-name/misc "normal"
+    write /dev/block/bootdevice/by-name/misc "normal"
 
 on property:sys.boot_mode=production
-    write -p /dev/block /dev/block/bootdevice/by-name/misc "production-01"
+    write /dev/block/bootdevice/by-name/misc "production-01"
 
 on property:sys.boot_mode=fullandroid
-    write -p /dev/block /dev/block/bootdevice/by-name/misc "full_android-"
+    write /dev/block/bootdevice/by-name/misc "full_android-"
 
 on property:persist.gesture.swapbuttons=*
     write /sys/bus/i2c/devices/12-0020/swap_buttons ${persist.gesture.swapbuttons}

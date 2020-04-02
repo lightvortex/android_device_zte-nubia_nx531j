@@ -120,10 +120,13 @@ on post-fs-data
 
     # Create directory used by audio subsystem
     mkdir /data/vendor/misc/audio 0770 audio audio
+    mkdir /data/vendor/audio 0770 audio audio
 
     # Create directory for audio delta files
     mkdir /data/vendor/misc/audio/acdbdata 0770 media audio
     mkdir /data/vendor/misc/audio/acdbdata/delta 0770 media audio
+    mkdir /data/vendor/audio/acdbdata 0770 media audio
+    mkdir /data/vendor/audio/acdbdata/delta 0770 media audio
 
     # Create directory for radio
     mkdir /data/vendor/radio 0770 system radio
@@ -147,10 +150,6 @@ on post-fs-data
     chmod 0664 /persist/sensors/sensors_settings
     chown root system /persist/sensors/sns.reg
     chmod 0664 /persist/sensors/sns.reg
-    chown root system /persist/PRSensorData.txt
-    chmod 0660 /persist/PRSensorData.txt
-    chown root system /persist/PSensor3cm_ct.txt
-    chmod 0660 /persist/PSensor3cm_ct.txt
 
     # /dev/sensors only supports an ioctl to get the current SLPI timestamp;
     # allow the sensors daemon to perform this as non-root
@@ -305,17 +304,6 @@ on property:sys.boot_completed=1
 on property:persist.env.fastdorm.enabled=true
     setprop persist.radio.data_no_toggle 1
 
-service vendor.cnd /vendor/bin/cnd
-    class main
-    user system
-    group system wifi inet radio wakelock net_admin
-    writepid /dev/cpuset/system-background/tasks
-
-service dpmQmiMgr /vendor/bin/dpmQmiMgr
-    class main
-    user system
-    group radio system
-
 service irsc_util /vendor/bin/irsc_util "/vendor/etc/sec_config"
     class core
     user root
@@ -370,10 +358,13 @@ service vendor.dataqti /vendor/bin/qti
     group radio oem_2901 diag usb
     writepid /dev/cpuset/system-background/tasks
 
-service vendor.sensors /vendor/bin/sensors.qcom
-    class core
-    user root
-    group root
+service vendor.sensors /vendor/bin/sensors.qti
+    class main
+    user system
+    group system
+    # Grants the ability for this daemon to bind IPC router ports so it can
+    # register QMI services
+    capabilities NET_BIND_SERVICE
     writepid /dev/cpuset/system-background/tasks
 
 on property:ro.vendor.use_data_netmgrd=false
@@ -397,6 +388,7 @@ service wpa_supplicant /vendor/bin/hw/wpa_supplicant \
     #   group wifi inet keystore
     interface android.hardware.wifi.supplicant@1.0::ISupplicant default
     interface android.hardware.wifi.supplicant@1.1::ISupplicant default
+    interface android.hardware.wifi.supplicant@1.2::ISupplicant default
     class main
     socket wpa_wlan0 dgram 660 wifi wifi
     disabled
@@ -443,8 +435,9 @@ service qseecomd /vendor/bin/qseecomd
 
 service time_daemon /vendor/bin/time_daemon
     class main
-    user root
-    group root
+    user system
+    group system
+    capabilities SYS_TIME
     writepid /dev/cpuset/system-background/tasks
 
 # Start camera server as daemon
@@ -452,46 +445,35 @@ service qcamerasvr /vendor/bin/mm-qcamera-daemon
     class late_start
     user camera
     group camera system inet input graphics
-    writepid /dev/cpuset/system-background/tasks
+    writepid /dev/cpuset/camera-daemon/tasks
 
 # Start up peripheral manager
-service per_mgr /vendor/bin/pm-service
+service vendor.per_mgr /vendor/bin/pm-service
     class core
     user system
     group system
     writepid /dev/cpuset/system-background/tasks
 
-service per_proxy /vendor/bin/pm-proxy
+service vendor.per_proxy /vendor/bin/pm-proxy
     class core
     user system
     group system
     writepid /dev/cpuset/system-background/tasks
     disabled
 
-on property:init.svc.per_mgr=running
-    start per_proxy
+on property:init.svc.vendor.per_mgr=running
+    start vendor.per_proxy
 
 on property:sys.shutdown.requested=*
-    stop per_proxy
+    stop vendor.per_proxy
+    stop vendor.ims_rtp_daemon
 
 service charger /charger
     class charger
     group system graphics
     seclabel u:r:charger:s0
 
-service readfem /vendor/bin/readfem
-    class main
-    user root
-    group root oem_2901
-    oneshot
-
-service readmac /vendor/bin/readmac
-    class main
-    user system
-    group system net_raw
-    oneshot
-
-service thermal-engine /vendor/bin/thermal-engine -c ${sys.qcom.thermalcfg:-/vendor/etc/thermal-engine-8996.conf}
+service thermal-engine /vendor/bin/thermal-engine -c ${sys.qcom.thermalcfg:-/vendor/etc/thermal-engine.conf}
     class main
     user root
     socket thermal-send-client stream 0666 system system
