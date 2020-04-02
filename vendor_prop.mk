@@ -87,8 +87,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     drm.service.enabled=true
 
 # FRP
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.frp.pst=/dev/block/bootdevice/by-name/frp
+#PRODUCT_PROPERTY_OVERRIDES += \
+#    ro.frp.pst=/dev/block/bootdevice/by-name/frp
 
 # Graphics
 PRODUCT_PROPERTY_OVERRIDES += \
