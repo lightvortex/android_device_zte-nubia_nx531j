@@ -2606,4 +2606,8 @@
         <path name="quad-mic" />
     </path>
 
+    <path name="unprocessed-headset-mic">
+        <path name="headset-mic" />
+    </path>
+
 </mixer>
