@@ -14,4 +14,4 @@
 # limitations under the License.
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/mk_nx531j.mk
+    $(LOCAL_DIR)/havoc_nx531j.mk

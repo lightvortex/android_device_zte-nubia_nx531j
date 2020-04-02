@@ -20,7 +20,7 @@ set -e
 
 
 # Required!
-export DEVICE=nx531j
+export DEVICE=nx531j-1
 export VENDOR=nubia
 
 export DEVICE_BRINGUP_YEAR=2019
@@ -33,7 +33,7 @@ if [[ ! -d "$MY_DIR" ]]; then MY_DIR="$PWD"; fi
 
 MK_ROOT="$MY_DIR"/../../..
 
-HELPER="$MK_ROOT"/vendor/mk/build/tools/extract_utils.sh
+HELPER="$MK_ROOT"/vendor/havoc/build/tools/extract_utils.sh
 if [ ! -f "$HELPER" ]; then
     echo "Unable to find helper script at $HELPER"
     exit 1
