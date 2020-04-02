@@ -23,18 +23,12 @@ $(call inherit-product, build/target/product/verity.mk)
 $(call inherit-product, vendor/nubia/nx531j/nx531j-vendor.mk)
 
 # Dalvik
-PRODUCT_PROPERTY_OVERRIDES += \
-    dalvik.vm.heapstartsize=8m \
-    dalvik.vm.heapgrowthlimit=288m \
-    dalvik.vm.heapsize=768m \
-    dalvik.vm.heaptargetutilization=0.75 \
-    dalvik.vm.heapminfree=2m \
-    dalvik.vm.heapmaxfree=8m
+$(call inherit-product, frameworks/native/build/phone-xhdpi-4096-dalvik-heap.mk )
 
 # Overlays
 DEVICE_PACKAGE_OVERLAYS += \
     $(LOCAL_PATH)/overlay \
-    $(LOCAL_PATH)/overlay-mokee
+    $(LOCAL_PATH)/overlay-lineage
 
 PRODUCT_ENFORCE_RRO_TARGETS := \
     framework-res
@@ -116,6 +110,7 @@ PRODUCT_PACKAGES += \
     audio.a2dp.default \
     audio.primary.msm8996 \
     audio.r_submix.default \
+    libaacwrapper \
     audio.usb.default \
     libaudio-resampler \
     libaudioroute \
@@ -187,15 +182,11 @@ PRODUCT_PACKAGES += \
     libqdMetaData.system \
     libtinyxml
 
-# Doze mode
-PRODUCT_PACKAGES += \
-    NubiaDoze
-
 # DRM
 PRODUCT_PACKAGES += \
     android.hardware.drm@1.0-impl \
     android.hardware.drm@1.0-service \
-    android.hardware.drm@1.1-service.clearkey
+    android.hardware.drm@1.2-service.clearkey
 
 # For config.fs
 PRODUCT_PACKAGES += \
@@ -308,7 +299,7 @@ PRODUCT_PACKAGES += \
 
 # Power
 PRODUCT_PACKAGES += \
-    android.hardware.power@1.1-service.nx531j
+    android.hardware.power@1.2-service-qti
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/powerhint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/powerhint.xml
@@ -339,6 +330,10 @@ PRODUCT_PACKAGES += \
     librmnetctl \
     libxml2
 
+# Shims
+PRODUCT_PACKAGES += \
+    libbase_shim
+
 # Seccomp policy
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/seccomp/mediacodec-seccomp.policy:$(TARGET_COPY_OUT_VENDOR)/etc/seccomp_policy/mediacodec.policy \
@@ -355,6 +350,10 @@ PRODUCT_COPY_FILES += \
 
 # Telephony
 PRODUCT_PACKAGES += \
+    qti-telephony-hidl-wrapper \
+    qti_telephony_hidl_wrapper.xml \
+    qti-telephony-utils \
+    qti_telephony_utils.xml \
     telephony-ext
 
 PRODUCT_BOOT_JARS += \
@@ -363,14 +362,6 @@ PRODUCT_BOOT_JARS += \
 # TextClassifier
 PRODUCT_PACKAGES += \
     textclassifier.bundle1
-
-# Touch HAL
-PRODUCT_PACKAGES += \
-    vendor.mokee.touch@1.0-service.nx531j
-
-# Trust HAL
-PRODUCT_PACKAGES += \
-    vendor.mokee.trust@1.0-service
 
 # Thermal
 PRODUCT_COPY_FILES += \
@@ -386,11 +377,7 @@ PRODUCT_PACKAGES += \
 
 # Biometrics
 PRODUCT_PACKAGES += \
-    android.hardware.biometrics.fingerprint@2.0-service.nx531j
-
-# VNDK
-#PRODUCT_PACKAGES += \
-#    vndk-sp
+    android.hardware.biometrics.fingerprint@2.1-service.nx531j
 
 # MBN
 PRODUCT_COPY_FILES += \
