@@ -19,7 +19,7 @@
 set -e
 
 # Required!
-export DEVICE=nx531j-1
+export DEVICE=nx531j
 export VENDOR=nubia
 
 export DEVICE_BRINGUP_YEAR=2019
