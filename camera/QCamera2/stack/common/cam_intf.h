@@ -549,6 +549,8 @@ typedef struct{
 
     /* Dual cam calibration data */
     cam_related_system_calibration_data_t related_cam_calibration;
+    
+    volatile char         nubia_reserved[108];
 } cam_capability_t;
 
 typedef enum {
@@ -983,15 +985,33 @@ typedef struct {
     INCLUDE(CAM_INTF_PARM_MANUAL_CAPTURE_TYPE,          cam_manual_capture_type,     1);
     INCLUDE(CAM_INTF_AF_STATE_TRANSITION,               uint8_t,                     1);
     INCLUDE(CAM_INTF_PARM_INITIAL_EXPOSURE_INDEX,       uint32_t,                    1);
-    INCLUDE(XIAOMI_DUMMY1,                              uint8_t,                     4);
     INCLUDE(CAM_INTF_PARM_INSTANT_AEC,                  uint8_t,                     1);// BAD +36 OK
     INCLUDE(CAM_INTF_META_REPROCESS_FLAGS,              uint8_t,                     1);//BAD stock +43 OK
-    volatile char         xiaomi_reserved3[2];
-    INCLUDE(XIAOMI_DUMMY2,                              uint8_t,                     4);
     INCLUDE(CAM_INTF_PARM_JPEG_ENCODE_CROP,             cam_stream_crop_info_t,      1); // BAD + 4 ?
     INCLUDE(CAM_INTF_PARM_JPEG_SCALE_DIMENSION,         cam_dimension_t,             1); //BAD stock +44
-    volatile char         xiaomi_reserved4[4];
-    INCLUDE(XIAOMI_DUMMY3,                              uint8_t,                     12);
+    volatile char nubia_reserved_1[4];
+    INCLUDE(NUBIA_02,                                   uint8_t,                     1);
+    volatile char nubia_reserved_2[3];
+    INCLUDE(NUBIA_06,                                   uint8_t,                     4);
+
+    INCLUDE(NUBIA_03,                                   uint8_t,                     4);
+    INCLUDE(NUBIA_04,                                   uint8_t,                     4);
+
+    INCLUDE(NUBIA_05,                                   uint8_t,                     4);
+
+    INCLUDE(NUBIA_07,                                   uint8_t,                     24);
+    INCLUDE(NUBIA_08,                                   uint8_t,                     60);
+    INCLUDE(NUBIA_09,                                   uint8_t,                     4);
+    INCLUDE(NUBIA_10,                                   uint8_t,                     4);
+    INCLUDE(NUBIA_11,                                   uint8_t,                     4);
+    INCLUDE(NUBIA_12,                                   uint8_t,                     4);
+    INCLUDE(NUBIA_13,                                   uint8_t,                     4);
+    INCLUDE(NUBIA_14,                                   uint8_t,                     4);
+    INCLUDE(NUBIA_15,                                   uint8_t,                     4);
+    INCLUDE(NUBIA_16,                                   uint8_t,                     1);
+    volatile char nubia_reserved_3[3];
+    INCLUDE(NUBIA_17,                                   uint8_t,                     4);
+    INCLUDE(NUBIA_18,                                   uint8_t,                     4);
 } metadata_data_t;
 
 /* Update clear_metadata_buffer() function when a new is_xxx_valid is added to

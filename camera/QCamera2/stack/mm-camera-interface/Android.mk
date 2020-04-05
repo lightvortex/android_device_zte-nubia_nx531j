@@ -27,6 +27,7 @@ ifneq (,$(filter msm8996 msmcobalt msmfalcon,$(TARGET_BOARD_PLATFORM)))
 endif
 
 LOCAL_CFLAGS += -D_ANDROID_ -DQCAMERA_REDEFINE_LOG
+LOCAL_CFLAGS += -DCONFIG_MACH_NUBIA_NX531J
 LOCAL_COPY_HEADERS_TO := mm-camera-interface
 LOCAL_COPY_HEADERS += ../common/cam_intf.h
 LOCAL_COPY_HEADERS += ../common/cam_types.h

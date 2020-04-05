@@ -611,6 +611,8 @@ typedef enum {
     CAM_ISO_MODE_800,
     CAM_ISO_MODE_1600,
     CAM_ISO_MODE_3200,
+    NUBIA_ISO_1,
+    NUBIA_ISO_2,
     CAM_ISO_MODE_MAX
 } cam_iso_mode_type;
 
@@ -1294,6 +1296,7 @@ typedef struct {
 typedef struct {
     uint32_t scale;
     float diopter;
+    volatile char         nubia_reserved1[4];
 } cam_focus_pos_info_t ;
 
 typedef struct {
@@ -1352,6 +1355,7 @@ typedef struct {
     cam_focus_mode_type focus_mode;        /* focus mode from backend */
     int32_t focus_pos;
     cam_af_flush_info_t flush_info;
+    volatile char         nubia_reserved1[4];
 } cam_auto_focus_data_t;
 
 typedef struct {
@@ -1493,6 +1497,7 @@ typedef struct {
     int32_t est_snap_iso_value;
     uint32_t est_snap_luma;
     uint32_t est_snap_target;
+    volatile char nubia_reserved[16];
 } cam_3a_params_t;
 
 typedef struct {
@@ -2150,6 +2155,24 @@ typedef enum {
     CAM_INTF_META_LOW_LIGHT,
     /* dynamic feature detection */
     CAM_INTF_META_IMG_DYN_FEAT, /* 200 */
+    NUBIA_01, //blob 205
+    NUBIA_02, //blob 206
+    NUBIA_03, //blob 207
+    NUBIA_04, //blob 208
+    NUBIA_05, //blob 209
+    NUBIA_06, //blob 210
+    NUBIA_07, //blob 211
+    NUBIA_08, //blob 212
+    NUBIA_09,  //blob 213
+    NUBIA_10,   //blob 214
+    NUBIA_11, //blob 215
+    NUBIA_12, //blob 216
+    NUBIA_13, //blob 217
+    NUBIA_14, //blob 218
+    NUBIA_15, //blob 219
+    NUBIA_16, //blob 220
+    NUBIA_17, //blob 221
+    NUBIA_18, //blob 222
     /*Parameter entry to communicate manual
     capture type*/
     CAM_INTF_PARM_MANUAL_CAPTURE_TYPE,
