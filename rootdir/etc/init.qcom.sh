@@ -28,7 +28,8 @@
 
 # Set shared buttons and touchpanel nodes ownership (these are proc_symlinks to the real sysfs nodes)
 chown -LR system.system /proc/buttons
-chown -LR system.system /proc/touchpanel
+chown -L system.system /proc/touchpanel/reversed_keys_enable
+chown -L system.system /proc/touchpanel/capacitive_keys_enable
 
 chmod g+w -R /data/vendor/radio/modem_config/*
 rm -rf /data/vendor/radio/modem_config/*
