@@ -21,6 +21,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     audio.deep_buffer.media=true \
     audio.offload.min.duration.secs=15 \
     audio.offload.video=true \
+    persist.nx531j.amp_hal_device_map="16,2;17,2;18,2;19,2" \
     persist.vendor.audio.fluence.speaker=true \
     persist.vendor.audio.fluence.voicecall=true \
     persist.vendor.audio.fluence.voicerec=false \
@@ -114,7 +115,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Media
 PRODUCT_PROPERTY_OVERRIDES += \
     vendor.vidc.enc.disable.pq=true \
-    vendor.video.disable.ubwc=1 \
+    debug.stagefright.ccodec=0 \
     vidc.enc.dcvs.extra-buff-count=2
 
 # Memory optimizations
