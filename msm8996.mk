@@ -146,9 +146,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     android.hardware.camera.provider@2.4-impl \
     android.hardware.camera.provider@2.4-service \
-    camera.msm8996 \
-    Snap \
-    libmm-qcamera
+    Snap 
 
 # CNE
 PRODUCT_PACKAGES += \

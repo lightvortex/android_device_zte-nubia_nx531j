@@ -124,6 +124,12 @@ vendor/etc/camera/msm8996_camera.xml
 vendor/etc/camera/imx179_chromatix.xml
 vendor/etc/camera/imx298_ois_chromatix.xml
 
+# camera hal
+vendor/lib/hw/camera.msm8996.so
+vendor/lib/libmm-qcamera.so
+vendor/lib/libmmcamera_interface.so
+vendor/lib/libmmjpeg_interface.so
+
 # Camera
 vendor/bin/mm-qcamera-daemon
 vendor/lib/libchromaflash.so
@@ -137,7 +143,7 @@ vendor/lib/libmmcamera2_frame_algorithm.so
 vendor/lib/libmmcamera2_iface_modules.so
 vendor/lib/libmmcamera2_imglib_modules.so
 vendor/lib/libmmcamera2_is.so
-vendor/lib/libmmcamera2_isp_modules.so|eee0b30736a453f69a41dd2d8ab532a906c08740
+#vendor/lib/libmmcamera2_isp_modules.so|eee0b30736a453f69a41dd2d8ab532a906c08740
 vendor/lib/libmmcamera2_mct.so
 vendor/lib/libmmcamera2_pp_buf_mgr.so
 vendor/lib/libmmcamera2_pproc_modules.so
@@ -781,3 +787,4 @@ vendor/lib/libpn548ad_fw.so
 vendor/firmware/nubia_tp_jdi_fw.img
 vendor/firmware/tfa98xx.cnt
 vendor/firmware/pressure-dev-ndt.bin
+
