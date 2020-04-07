@@ -146,6 +146,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     android.hardware.camera.provider@2.4-impl \
     android.hardware.camera.provider@2.4-service \
+    android.frameworks.displayservice@1.0 \
     Snap 
 
 # CNE
