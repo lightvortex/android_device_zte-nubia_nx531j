@@ -1,5 +1,5 @@
 ######################################
-# ADSP
+# ADSP - mi5
 ######################################
 vendor/bin/adsprpcd
 vendor/lib64/libadsprpc.so
@@ -14,7 +14,7 @@ vendor/lib/libfastcvadsp_stub.so
 vendor/lib/libfastcvopt.so
 
 ######################################
-# ADSP modules
+# ADSP modules - mi5
 ######################################
 vendor/lib/rfsa/adsp/libadsp_fd_skel.so
 vendor/lib/rfsa/adsp/libadsp_hvx_add_constant.so
@@ -34,24 +34,24 @@ vendor/lib/rfsa/adsp/libvpp_frc.so
 vendor/lib/rfsa/adsp/us-syncproximity.so
 
 ######################################
-# ADSP modules
+# ADSP modules - mi5
 ######################################
 vendor/lib/rfsa/adsp/libdirac-appi.so
 
 ######################################
-# Audio ACDB
+# Audio ACDB - mi5
 ######################################
-vendor/etc/acdbdata/Forte/Forte_Bluetooth_cal.acdb
-vendor/etc/acdbdata/Forte/Forte_General_cal.acdb
-vendor/etc/acdbdata/Forte/Forte_Global_cal.acdb
-vendor/etc/acdbdata/Forte/Forte_Handset_cal.acdb
-vendor/etc/acdbdata/Forte/Forte_Hdmi_cal.acdb
-vendor/etc/acdbdata/Forte/Forte_Headset_cal.acdb
-vendor/etc/acdbdata/Forte/Forte_Speaker_cal.acdb
+vendor/etc/acdbdata/MTP/MTP_Bluetooth_cal.acdb
+vendor/etc/acdbdata/MTP/MTP_General_cal.acdb
+vendor/etc/acdbdata/MTP/MTP_Global_cal.acdb
+vendor/etc/acdbdata/MTP/MTP_Handset_cal.acdb
+vendor/etc/acdbdata/MTP/MTP_Hdmi_cal.acdb
+vendor/etc/acdbdata/MTP/MTP_Headset_cal.acdb
+vendor/etc/acdbdata/MTP/MTP_Speaker_cal.acdb
 vendor/etc/acdbdata/adsp_avs_config.acdb
 
 ######################################
-# Audio amplifier calibration sound
+# Audio amplifier calibration sound - AXON 7
 ######################################
 etc/silence_short.wav:vendor/etc/silence_short.wav
 
@@ -70,7 +70,7 @@ vendor/lib64/hw/com.qualcomm.qti.ant@1.0-impl.so
 vendor/lib64/com.qualcomm.qti.ant@1.0_vendor.so
 
 ######################################
-# ADSP modules
+# ADSP modules - mi5
 ######################################
 vendor/lib/rfsa/adsp/libadsp_fd_skel.so
 vendor/lib/rfsa/adsp/libadsp_hvx_add_constant.so
@@ -90,7 +90,7 @@ vendor/lib/rfsa/adsp/libvpp_frc.so
 vendor/lib/rfsa/adsp/us-syncproximity.so
 
 ######################################
-# Audio libraries
+# Audio libraries - mi5
 ######################################
 etc/permissions/audiosphere.xml
 framework/audiosphere.jar
@@ -124,7 +124,7 @@ vendor/lib/libmdsprpc.so
 vendor/lib/libqtigef.so
 
 ######################################
-# Bluetooth
+# Bluetooth - op3
 ######################################
 vendor/bin/hw/android.hardware.bluetooth@1.0-service-qti
 vendor/etc/init/android.hardware.bluetooth@1.0-service-qti.rc
@@ -151,7 +151,7 @@ vendor/etc/camera/imx179_chromatix.xml
 vendor/etc/camera/imx298_ois_chromatix.xml
 
 ######################################
-# camera hal
+# camera hal - mokee
 ######################################
 vendor/lib/hw/camera.msm8996.so
 vendor/lib/libmm-qcamera.so
@@ -854,6 +854,7 @@ vendor/lib64/hw/activity_recognition.msm8996.so
 vendor/lib64/libsensor_reg.so
 vendor/lib64/libsensor1.so
 vendor/lib64/sensors.ssc.so
+
 ######################################
 # Thermal - from op3 - OPR1.170623.032
 ######################################
