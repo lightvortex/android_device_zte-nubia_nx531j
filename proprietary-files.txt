@@ -847,13 +847,14 @@ vendor/radio/qcril_database/qcril.db|8405d20c8e1184c79eba1c4f19ecfb92d7529bdf
 ######################################
 vendor/bin/sensors.qti
 vendor/lib/hw/activity_recognition.msm8996.so
-vendor/lib/libsensor_reg.so
 vendor/lib/libsensor1.so
+vendor/lib/libsensor_reg.so
 vendor/lib/sensors.ssc.so
 vendor/lib64/hw/activity_recognition.msm8996.so
-vendor/lib64/libsensor_reg.so
 vendor/lib64/libsensor1.so
+vendor/lib64/libsensor_reg.so
 vendor/lib64/sensors.ssc.so
+vendor/lib64/sensors.oem.so
 
 ######################################
 # Thermal - from op3 - OPR1.170623.032
