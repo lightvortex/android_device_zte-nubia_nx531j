@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (C) 2018 The Mokee Project
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2014-2019 The OmniROM Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,24 +13,124 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory
-        android:key="camera"
-        android:title="@string/camera_title">
-        <SwitchPreference
-            android:key="hal3"
-            android:defaultValue="true"
-            android:title="@string/camera_hal3_title" />
-    </PreferenceCategory>
-    
-    <PreferenceCategory
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <androidx.preference.PreferenceCategory
         android:key="overclock"
-        android:title="@string/overclock_title">
-        <SwitchPreference
-            android:key="oc"
-            android:defaultValue="true"
-            android:title="@string/overclocking_enable_title" />
-    </PreferenceCategory>
+        android:title="@string/oc_title">
+            <org.omnirom.device.Preference.ButtonocPreference
+            android:defaultValue="false"
+            android:key="buttons_oc"
+            android:summary="@string/oc_hw_buttons_summary"
+            android:title="@string/oc_hw_buttons_title" />
+    </androidx.preference.PreferenceCategory>        
+            
+    <androidx.preference.PreferenceCategory
+        android:key="display"
+        android:title="@string/display_title">
 
-</PreferenceScreen>
+        <androidx.preference.Preference
+            android:fragment="org.omnirom.device.DisplayCalibration"
+            android:icon="@drawable/ic_kcal"
+            android:key="kcal"
+            android:summary="@string/kcal_summary"
+            android:title="@string/kcal_title" />
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_doze"
+            android:key="device_doze"
+            android:persistent="false"
+            android:title="@string/device_doze_title">
+            <intent
+                android:action="android.intent.action.MAIN"
+                android:targetClass="org.lineageos.settings.doze.DozeSettingsActivity"
+                android:targetPackage="org.lineageos.settings.doze" />
+        </androidx.preference.Preference>
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        android:key="spectrum_profile"
+        android:title="@string/spectrum_profile_title">
+
+        <org.omnirom.device.Preference.SpectrumPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/spectrum_dialogTitle"
+            android:entries="@array/spectrum_profiles"
+            android:entryValues="@array/spectrum_values"
+            android:icon="@drawable/ic_kernel"
+            android:key="spectrum"
+            android:summary="@string/spectrum_summary"
+            android:title="@string/spectrum_title" />
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory android:title="@string/s2s_title">
+
+        <org.omnirom.device.Preference.SweepToSleepPreference
+            android:defaultValue="0"
+            android:entries="@array/s2sArray"
+            android:entryValues="@array/s2sValues"
+            android:icon="@drawable/ic_sts"
+            android:key="sweep2sleep"
+            android:summary="@string/s2s_title_summary"
+            android:title="@string/s2s_title_head" />
+
+        <org.omnirom.device.Preference.S2SVibratorStrengthPreference
+            android:icon="@drawable/ic_vibrate"
+            android:key="s2s_vib_strength"
+            android:title="@string/s2s_vib_strength_title_head"
+            android:max="90"
+            android:min="0"
+            android:defaultValue="20"/>
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        android:key="hw_buttons"
+        android:title="@string/hw_buttons_title">
+
+        <org.omnirom.device.Preference.ButtonSwapPreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_swap_btn"
+            android:key="buttons_swap"
+            android:summary="@string/swap_hw_buttons_summary"
+            android:title="@string/swap_hw_buttons_title" />
+
+        <org.omnirom.device.Preference.BacklightPreference
+            android:icon="@drawable/ic_led_btn"
+            android:iconSpaceReserved="true"
+            android:key="btn_brightness"
+            android:summary="@string/btn_led_summary"
+            android:title="@string/btn_led_title"
+            android:max="255"
+            android:min="0"
+            android:defaultValue="255"/>
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        android:key="usb_fastcharge"
+        android:title="@string/usb_fastcharge_title">
+
+        <org.omnirom.device.Preference.FastChargePreference
+            android:defaultValue="false"
+            android:icon="@drawable/ic_usb_fastcharge"
+            android:key="fastcharge"
+            android:summary="@string/fastcharge_summary"
+            android:title="@string/fastcharge_title" />
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        android:title="@string/sound_title">
+
+        <androidx.preference.Preference
+            android:icon="@drawable/ic_dirac"
+            android:key="xiaomi_dirac"
+            android:persistent="true"
+            android:summary="@string/xiaomi_dirac_summary"
+            android:title="@string/xiaomi_dirac_title">
+            <intent
+                android:action="android.intent.action.MAIN"
+                android:targetClass="org.xiaomi.dirac.dirac.DiracActivity"
+                android:targetPackage="org.xiaomi.dirac" />
+        </androidx.preference.Preference>
+    </androidx.preference.PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>
