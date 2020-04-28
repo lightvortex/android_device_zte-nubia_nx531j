@@ -25,6 +25,7 @@ import android.content.SharedPreferences;
 
 import androidx.preference.PreferenceManager;
 
+import org.omnirom.device.Preference.OCPreference;
 import org.omnirom.device.Preference.BacklightPreference;
 import org.omnirom.device.Preference.ButtonSwapPreference;
 import org.omnirom.device.Preference.FastChargePreference;
@@ -41,6 +42,7 @@ public final class Startup extends BroadcastReceiver {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
 
             BacklightPreference.FEATURE.restore(sp);
+            OCPreference.FEATURE.restore(sp);
             ButtonSwapPreference.FEATURE.restore(sp);
             FastChargePreference.FEATURE.restore(sp);
             SweepToSleepPreference.FEATURE.restore(sp);

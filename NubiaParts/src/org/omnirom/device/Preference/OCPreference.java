@@ -27,45 +27,45 @@ import androidx.preference.SwitchPreference;
 
 import org.omnirom.device.utils.FileUtils;
 
-public final class ButtonSwapPreference extends SwitchPreference implements
+public final class OCPreference extends SwitchPreference implements
         Preference.OnPreferenceChangeListener {
 
-    public static final String BUTTONS_SWAP_KEY = "buttons_swap";
-    private static final String BUTTONS_SWAP_PATH = "//sys/bus/i2c/devices/12-0020/swap_buttons";
-    private static final boolean BUTTONS_SWAP_DEFAULT_VALUE = false;
+    public static final String ENABLE_OC_KEY = "buttons_oc";
+    private static final String ENABLE_OC_PATH = "/sys/module/msm_performance/parameters/overfreq";
+    private static final boolean ENABLE_OC_DEFAULT_VALUE = false;
 
     public static final KernelFeature<Boolean> FEATURE = new KernelFeature<Boolean>() {
 
         @Override
         public boolean isSupported() {
-            return FileUtils.isFileWritable(BUTTONS_SWAP_PATH);
+            return FileUtils.isFileWritable(ENABLE_OC_PATH);
         }
 
         @Override
         public Boolean getCurrentValue() {
-            return FileUtils.getFileValueAsBoolean(BUTTONS_SWAP_PATH, false);
+            return FileUtils.getFileValueAsBoolean(ENABLE_OC_PATH, false);
         }
 
         @Override
         public boolean applyValue(Boolean newValue) {
-            return FileUtils.writeValue(BUTTONS_SWAP_PATH, newValue ? "1" : "0");
+            return FileUtils.writeValue(ENABLE_OC_PATH, newValue ? "1" : "0");
         }
 
         @Override
         public void applySharedPreferences(Boolean newValue, SharedPreferences sp) {
-            sp.edit().putBoolean(BUTTONS_SWAP_KEY, newValue).apply();
+            sp.edit().putBoolean(ENABLE_OC_KEY, newValue).apply();
         }
 
         @Override
         public boolean restore(SharedPreferences sp) {
             if(!isSupported()) return false;
 
-            boolean value = sp.getBoolean(BUTTONS_SWAP_KEY, BUTTONS_SWAP_DEFAULT_VALUE);
+            boolean value = sp.getBoolean(ENABLE_OC_KEY, ENABLE_OC_DEFAULT_VALUE);
             return applyValue(value);
         }
     };
 
-    public ButtonSwapPreference(Context context, AttributeSet attrs) {
+    public OCPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOnPreferenceChangeListener(this);
     }
