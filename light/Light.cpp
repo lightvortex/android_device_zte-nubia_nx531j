@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2018 The LineageOS Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #define LOG_TAG "LightService"
 
 #include <log/log.h>
@@ -22,18 +6,49 @@
 
 #include <fstream>
 
-#define LCD_LED         "/sys/class/leds/lcd-backlight/brightness"
+// Display
+#define LCD_FILE "/sys/class/leds/lcd-backlight/brightness"
 
-#define BREATH_SOURCE_NOTIFICATION	0x01
-#define BREATH_SOURCE_BATTERY		0x02
-#define BREATH_SOURCE_BUTTONS		0x04
-#define BREATH_SOURCE_ATTENTION		0x08
-#define BREATH_SOURCE_NONE			0x00
 
-#define MAX_LED_BRIGHTNESS    255
-#define MAX_LCD_BRIGHTNESS    255
+// Nubia LED
+#define LED_BRIGHTNESS "/sys/class/leds/nubia_led/brightness"
+#define LED_BLINK_MODE "/sys/class/leds/nubia_led/blink_mode"
+#define LED_CHANNEL "/sys/class/leds/nubia_led/outn"
+#define LED_GRADE "/sys/class/leds/nubia_led/grade_parameter"
+#define LED_FADE "/sys/class/leds/nubia_led/fade_parameter"
+
+// Battery
+#define BATTERY_CAPACITY "/sys/class/power_supply/battery/capacity"
+#define BATTERY_CHARGING_STATUS "/sys/class/power_supply/battery/status"
+#define BATTERY_STATUS_DISCHARGING  "Discharging"
+#define BATTERY_STATUS_NOT_CHARGING "Not charging"
+#define BATTERY_STATUS_CHARGING     "Charging"
+
+
+// Blink mode
+#define BLINK_MODE_ON 1
+#define BLINK_MODE_OFF 2
+#define BLINK_MODE_BREATH 3
+#define BLINK_MODE_BREATH_ONCE 6
+
+// Outn channels
+#define LED_CHANNEL_HOME 16
+#define LED_CHANNEL_BUTTON 8
+
+// Grade values
+#define LED_GRADE_BUTTON 8
+#define LED_GRADE_HOME 8
+#define LED_GRADE_HOME_BATTERY_LOW 0
+#define LED_GRADE_HOME_BATTERY_FULL 6 
+#define LED_GRADE_HOME_NOTIFICATION 6
+#define LED_GRADE_HOME_BATTERY 6
+#define LED_GRADE_HOME_ATTENTION 6
+
+#define MAX_LED_BRIGHTNESS 255
+#define MAX_LCD_BRIGHTNESS 4095
 
 namespace {
+
 using ::android::hardware::Return;
 using ::android::hardware::Void;
 using ::android::hardware::light::V2_0::Flash;
@@ -90,6 +105,10 @@ static void set(std::string path, int value) {
     set(path, std::to_string(value));
 }
 
+static inline bool isLit(const LightState& state) {
+    return state.color & 0x00ffffff;
+}
+
 static uint32_t getBrightness(const LightState& state) {
     uint32_t alpha, red, green, blue;
 
@@ -113,23 +132,26 @@ static uint32_t getBrightness(const LightState& state) {
     return (77 * red + 150 * green + 29 * blue) >> 8;
 }
 
+static inline uint32_t scaleBrightness(uint32_t brightness, uint32_t maxBrightness) {
+    return brightness * maxBrightness / 0xFF;
+}
+
+static inline uint32_t getScaledBrightness(const LightState& state, uint32_t maxBrightness) {
+    return scaleBrightness(getBrightness(state), maxBrightness);
+}
+
 static void handleBacklight(const LightState& state) {
-    uint32_t brightness = getBrightness(state);
-    set(LCD_LED, brightness);
+    uint32_t brightness = getScaledBrightness(state, MAX_LCD_BRIGHTNESS);
+    set(LCD_FILE, brightness);
 }
 
-static inline bool isLit(const LightState& state) {
-    return state.color & 0x00ffffff;
-}
-
-int getBatteryStatus(const LightState& state)
+int getBatteryStatus(const LightState)
 {
     int err;
 
     char status_str[16];
-    int capacity;
 
-    err = readStr(BATTERY_STATUS_FILE, status_str, sizeof(status_str));
+    err = readStr(BATTERY_CHARGING_STATUS, status_str, sizeof(status_str));
     if (err <= 0) {
         ALOGI("failed to read battery status: %d", err);
         return BATTERY_UNKNOWN;
@@ -137,10 +159,16 @@ int getBatteryStatus(const LightState& state)
 
     ALOGI("battery status: %d, %s", err, status_str);
 
-    capacity = (state.color >> 24) & 0xff;
-    if (capacity > 100) {
-        capacity = 100;
+    char capacity_str[6];
+    int capacity;
+
+    err = readStr(BATTERY_CAPACITY, capacity_str, sizeof(capacity_str));
+    if (err <= 0) {
+        ALOGI("failed to read battery capacity: %d", err);
+        return BATTERY_UNKNOWN;
     }
+
+    capacity = atoi(capacity_str);
 
     ALOGI("battery capacity: %d", capacity);
 
@@ -161,13 +189,9 @@ int getBatteryStatus(const LightState& state)
 
 static void handleNubiaLed(const LightState& state, int source)
 {
-
-    int buttons;
     int mode;
 
-    char grade[16];
-    size_t grade_len = 0;
-
+    size_t grade = 0;
     char fade[16];
     size_t fade_len = 0;
 
@@ -182,44 +206,47 @@ static void handleNubiaLed(const LightState& state, int source)
         ALOGI("ongoing -: %d = %d", source, g_ongoing);
     }
 
-    buttons = getBrightness(state) / 20;
-
     /* set side buttons */
 
-    set(NUBIA_CHANNEL_FILE, SILDE_CHANNEL);
+    set(LED_CHANNEL, LED_CHANNEL_BUTTON);
     if (g_ongoing & ONGOING_BUTTONS) {
-        set(NUBIA_GRADE_FILE, buttons);
-        set(NUBIA_MODE_FILE, RGB_LED_MODE_CONSTANT_ON);
+        set(LED_GRADE, LED_GRADE_BUTTON);
+        set(LED_BLINK_MODE, BLINK_MODE_ON);
     } else {
-        set(NUBIA_MODE_FILE, RGB_LED_MODE_OFF);
+        set(LED_BLINK_MODE, BLINK_MODE_OFF);
     }
 
     /* set middle ring */
 
     if (g_ongoing & ONGOING_NOTIFICATION) {
-        mode = RGB_LED_MODE_AUTO_BLINK;
-        grade_len = sprintf(grade, "%d %d\n",
-            buttons,
-            buttons + getBrightness(state) / 20);
+        mode = BLINK_MODE_BREATH;
+        grade = LED_GRADE_HOME_NOTIFICATION;
     }
     else if (g_ongoing & ONGOING_ATTENTION) {
-        mode = RGB_LED_MODE_AUTO_BLINK;
-        grade_len = sprintf(grade, "%d %d\n",
-            buttons,
-            buttons + getBrightness(state) / 20);
+        mode = BLINK_MODE_BREATH;
+        grade = LED_GRADE_HOME_ATTENTION;
     }
     else if (g_battery == BATTERY_CHARGING) {
-        mode = RGB_LED_MODE_AUTO_BLINK;
-        grade_len = sprintf(grade, "%d %d\n",
-            buttons + BRIGHTNESS_BATTERY_FULL / 20,
-            buttons + BRIGHTNESS_BATTERY_CHARGING / 20);
+        mode = BLINK_MODE_BREATH;
+        grade = LED_GRADE_HOME_BATTERY;
+        fade_len = sprintf(fade, "%d %d %d\n", 3, 0, 4);
+    }
+    else if (g_battery == BATTERY_FULL) {
+        mode = BLINK_MODE_BREATH_ONCE;
+        grade = LED_GRADE_HOME_BATTERY_FULL;
+        fade_len = sprintf(fade, "%d %d %d\n", 3, 0, 4);
+    }
+    else if (g_battery == BATTERY_LOW) {
+        mode = BLINK_MODE_BREATH;
+        grade = LED_GRADE_HOME_BATTERY_LOW;
+        fade_len = sprintf(fade, "%d %d %d\n", 3, 0, 4);
     }
     else if (g_ongoing & ONGOING_BUTTONS) {
-        mode = RGB_LED_MODE_CONSTANT_ON;
-        grade_len = sprintf(grade, "%d\n", buttons);
+        mode = BLINK_MODE_ON;
+        grade = LED_GRADE_BUTTON;
     }
     else {
-        mode = RGB_LED_MODE_OFF;
+        mode = BLINK_MODE_OFF;
     }
 
     if (state.flashMode == Flash::TIMED) {
@@ -227,21 +254,17 @@ static void handleNubiaLed(const LightState& state, int source)
             1, state.flashOnMs / 400, state.flashOffMs / 400);
     }
 
-    set(NUBIA_CHANNEL_FILE, MIDDLE_CHANNEL);
-
-    if (grade_len > 0) {
-        set(NUBIA_GRADE_FILE, grade, grade_len);
-    }
-
+    set(LED_CHANNEL, LED_CHANNEL_HOME);
+    set(LED_GRADE, grade);
     if (fade_len > 0) {
-        set(NUBIA_FADE_FILE, fade, fade_len);
+        set(LED_FADE, fade, fade_len);
     }
-
-    set(NUBIA_MODE_FILE, mode);
-
+    set(LED_BLINK_MODE, mode);
 }
 
 static void handleButtons(const LightState& state) {
+    uint32_t brightness = getScaledBrightness(state, MAX_LED_BRIGHTNESS);
+    set(LED_BRIGHTNESS, brightness);
 	handleNubiaLed(state, ONGOING_BUTTONS);
 }
 
@@ -257,7 +280,6 @@ static void handleBattery(const LightState& state){
 static void handleAttention(const LightState& state){
 	handleNubiaLed(state, ONGOING_ATTENTION);
 }
-
 /* Keep sorted in the order of importance. */
 static std::vector<LightBackend> backends = {
     { Type::ATTENTION, handleAttention },

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The LineageOS Project
+ * Copyright (C) 2019 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,73 +24,11 @@
 #include <mutex>
 #include <vector>
 
-/**
- * led defs
- */
-
-#define LCD_FILE \
-        "/sys/class/leds/lcd-backlight/brightness"
-
-#define NUBIA_LED_FILE \
-        "/sys/class/leds/nubia_led/brightness"
-
-#define NUBIA_CHANNEL_FILE \
-        "/sys/class/leds/nubia_led/outn"
-
-#define NUBIA_GRADE_FILE \
-        "/sys/class/leds/nubia_led/grade_parameter"
-
-#define NUBIA_FADE_FILE \
-        "/sys/class/leds/nubia_led/fade_parameter"
-
-#define NUBIA_MODE_FILE \
-        "/sys/class/leds/nubia_led/blink_mode"
-
+// Events
 #define ONGOING_NONE             0
 #define ONGOING_NOTIFICATION    (1 << 0)
 #define ONGOING_BUTTONS         (1 << 1)
 #define ONGOING_ATTENTION       (1 << 2)
-
-enum led_control_mode {
-    RGB_LED_MODE_CLOSED,
-    RGB_LED_MODE_CONSTANT_ON,
-    RGB_LED_MODE_OFF,
-    RGB_LED_MODE_AUTO_BLINK,
-    RGB_LED_MODE_POWER_ON,
-    RGB_LED_MODE_POWER_OFF,
-    RGB_LED_MODE_ONCE_BLINK,
-};
-
-#define MIDDLE_CHANNEL   0x10
-#define SILDE_CHANNEL    0x08
-
-
-/**
- * battery defs
- */
-
-enum battery_status {
-    BATTERY_UNKNOWN,
-    BATTERY_LOW,
-    BATTERY_FREE,
-    BATTERY_CHARGING,
-    BATTERY_FULL,
-};
-
-#define BRIGHTNESS_BATTERY_LOW          100
-#define BRIGHTNESS_BATTERY_CHARGING     200
-#define BRIGHTNESS_BATTERY_FULL         100
-
-#define BATTERY_STATUS_FILE \
-        "/sys/class/power_supply/battery/status"
-
-#define BATTERY_STATUS_DISCHARGING  "Discharging"
-#define BATTERY_STATUS_NOT_CHARGING "Not charging"
-#define BATTERY_STATUS_CHARGING     "Charging"
-
-
-static int g_ongoing = ONGOING_NONE;
-static int g_battery = BATTERY_UNKNOWN;
 
 using ::android::hardware::Return;
 using ::android::hardware::Void;
@@ -99,6 +37,21 @@ using ::android::hardware::light::V2_0::ILight;
 using ::android::hardware::light::V2_0::LightState;
 using ::android::hardware::light::V2_0::Status;
 using ::android::hardware::light::V2_0::Type;
+
+/**
+ * battery defs
+ */
+
+enum battery_status {
+    BATTERY_UNKNOWN = 0,
+    BATTERY_LOW,
+    BATTERY_FREE,
+    BATTERY_CHARGING,
+    BATTERY_FULL,
+};
+
+static int g_ongoing = ONGOING_NONE;
+static int g_battery = BATTERY_UNKNOWN;
 
 typedef void (*LightStateHandler)(const LightState&);
 
@@ -111,7 +64,6 @@ struct LightBackend {
         this->state.color = 0xff000000;
     }
 };
-
 
 namespace android {
 namespace hardware {
@@ -135,4 +87,3 @@ class Light : public ILight {
 }  // namespace android
 
 #endif  // ANDROID_HARDWARE_LIGHT_V2_0_LIGHT_H
-
