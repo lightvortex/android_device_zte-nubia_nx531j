@@ -178,45 +178,24 @@
          Software implementation will be used if config_hardware_auto_brightness_available is not set -->
     <bool name="config_automatic_brightness_available">true</bool>
 
-
-    <integer-array name="config_autoBrightnessLevels">
-        <item>1</item>
-        <item>10</item>
-        <item>50</item>
-        <item>100</item>
-        <item>400</item>
-        <item>900</item>
-        <item>2000</item>
-        <item>5000</item>
-    </integer-array>
-    <integer-array name="config_autoBrightnessLcdBacklightValues">
-        <item>28</item>
-        <item>40</item>
-        <item>90</item>
-        <item>110</item>
-        <item>120</item>
-        <item>132</item>
-        <item>160</item>
-        <item>200</item>
-        <item>225</item>
-    </integer-array>
-
-    <!-- Screen brightness used to dim the screen when the user activity
-         timeout expires.  May be less than the minimum allowed brightness setting
-         that can be set by the user. -->
-    <integer name="config_screenBrightnessDim">1</integer>
-
-    <!-- Default screen brightness setting.
-         Must be in the range specified by minimum and maximum. -->
-    <integer name="config_screenBrightnessSettingDefault">120</integer>
-
     <!-- Stability requirements in milliseconds for accepting a new brightness level.  This is used
          for debouncing the light sensor.  Different constants are used to debounce the light sensor
          when adapting to brighter or darker environments.  This parameter controls how quickly
          brightness changes occur in response to an observed change in light level that exceeds the
          hysteresis threshold. -->
-    <integer name="config_autoBrightnessBrighteningLightDebounce">500</integer>
-    <integer name="config_autoBrightnessDarkeningLightDebounce">500</integer>
+    <integer name="config_autoBrightnessBrighteningLightDebounce">2000</integer>
+    <integer name="config_autoBrightnessDarkeningLightDebounce">4000</integer>
+
+    <!-- Minimum screen brightness allowed by the power manager. -->
+    <integer name="config_screenBrightnessDim">6</integer>
+
+    <!-- Minimum screen brightness setting allowed by the power manager.
+         The user is forbidden from setting the brightness below this level. -->
+    <integer name="config_screenBrightnessSettingMinimum">2</integer>
+
+    <!-- Default screen brightness setting.
+         Must be in the range specified by minimum and maximum. -->
+    <integer name="config_screenBrightnessSettingDefault">46</integer>
 
     <!-- The maximum range of gamma adjustment possible using the screen
          auto-brightness adjustment setting. -->
@@ -224,6 +203,10 @@
 
     <!-- Period of time in which to consider light samples in milliseconds. -->
     <integer name="config_autoBrightnessAmbientLightHorizon">10000</integer>
+    
+    <!-- Control whether the always on display mode is enabled by default. This value will be used
+         during initialization when the setting is still null. -->
+    <bool name="config_dozeAlwaysOnEnabled">false</bool>
 
     <!-- Configure wifi tcp buffersizes in the form:
          rmem_min,rmem_def,rmem_max,wmem_min,wmem_def,wmem_max -->
@@ -389,9 +372,6 @@
          in hardware. -->
     <bool name="config_setColorTransformAccelerated">true</bool>
 
-    <!-- Button backlight -->
-    <bool name="config_deviceHasVariableButtonBrightness">true</bool>
-
     <!-- Whether to cleanup fingerprints upon connection to the daemon and when user switches -->
     <bool name="config_cleanupUnusedFingerprints">false</bool>
     
@@ -406,19 +386,18 @@
     <!-- Specify custom blanking delay of the display -->
     <integer name="config_screen_off_delay">0</integer>
 
-
     <!-- Allow automatic adjusting of the screen brightness while dozing in low power state. -->
     <bool name="config_allowAutoBrightnessWhileDozing">true</bool>
-
-    <!-- Minimum screen brightness setting allowed by the power manager.
-         The user is forbidden from setting the brightness below this level. -->
-    <integer name="config_screenBrightnessSettingMinimum">1</integer>
 
    <!-- Enable ACS (auto channel selection) for Wifi hotspot (SAP) -->
    <bool translatable="false" name="config_wifi_softap_acs_supported">true</bool>
 
    <!-- Enable 802.11ac for Wifi hotspot (SAP) -->
    <bool translatable="false" name="config_wifi_softap_ieee80211ac_supported">true</bool>
+   
+       <!-- Button backlight -->
+    <bool name="config_button_brightness_support">true</bool>
+    <bool name="config_deviceHasVariableButtonBrightness">true</bool>
 
 <!-- Whether the Unprocessed audio source supports the required frequency range and level -->
 	    <bool name="config_supportAudioSourceUnprocessed">true</bool>

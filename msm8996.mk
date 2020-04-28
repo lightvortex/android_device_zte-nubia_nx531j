@@ -171,6 +171,10 @@ PRODUCT_PACKAGES += \
 #PRODUCT_DEXPREOPT_SPEED_APPS += \
 #    SystemUI
 
+# Doze
+PRODUCT_PACKAGES += \
+    Doze 
+
 # Display
 PRODUCT_PACKAGES += \
     android.hardware.graphics.allocator@2.0-impl \
@@ -220,9 +224,9 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/gps/etc/sap.conf:$(TARGET_COPY_OUT_VENDOR)/etc/sap.conf \
     $(LOCAL_PATH)/gps/etc/xtwifi.conf:$(TARGET_COPY_OUT_VENDOR)/etc/xtwifi.conf
 
-# ConfigPanel
+# Lineage hardware
 PRODUCT_PACKAGES += \
-    ConfigPanel
+    vendor.lineage.touch@1.0-service.nx531j
 
 # Healthd
 PRODUCT_PACKAGES += \
