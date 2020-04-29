@@ -53,20 +53,15 @@ on boot
     write /proc/sys/kernel/sched_boost 1
 
 on charger
-    wait /dev/block/platform/soc/${ro.boot.bootdevice}
-
-    write /sys/module/lpm_levels/parameters/sleep_disabled "N"
-
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "userspace"
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed 300000
-    write /sys/devices/system/cpu/cpu1/online 1
-    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor "userspace"
-    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_setspeed 300000
     write /sys/devices/system/cpu/cpu2/online 0
     write /sys/devices/system/cpu/cpu3/online 0
-    write /sys/module/msm_thermal/parameters/enabled "N"
-    start vendor.hvdcp_opti
-    start thermal-engine
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "powersave"
+    write /sys/module/lpm_levels/parameters/sleep_disabled 0
+
+    wait /dev/block/platform/soc/7464900.sdhci
+
+    # Setup zram options
+    write /sys/block/zram0/comp_algorithm lz4
 
 on enable-low-power
     # Disable thermal hotplug to switch governor
