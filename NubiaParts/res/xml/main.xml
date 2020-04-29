@@ -18,7 +18,7 @@
     <androidx.preference.PreferenceCategory
         android:key="overclock"
         android:title="@string/oc_title">
-            <org.omnirom.device.Preference.ButtonocPreference
+            <org.omnirom.device.Preference.OCPreference
             android:defaultValue="false"
             android:key="buttons_oc"
             android:summary="@string/oc_hw_buttons_summary"

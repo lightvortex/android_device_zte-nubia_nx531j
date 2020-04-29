@@ -24,8 +24,8 @@
     
     <!-- Overclock -->
     <string name="oc_title">Overclock</string>
-    <string name="oc_hw_buttons_title">Enable Overclock</string>
-    <string name="oc_hw_buttons_summary">enables overclocking</string>
+    <string name="oc_hw_buttons_title">Enable Overclocking</string>
+    <string name="oc_hw_buttons_summary">Use this when gaming :)</string>
     
     <!-- s2s -->
     <string name="s2s_title">Sweep to sleep</string>

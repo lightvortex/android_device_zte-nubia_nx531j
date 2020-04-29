@@ -1,5 +1,5 @@
 LOCAL_PATH := $(call my-dir)
-ifeq ($(TARGET_DEVICE),$(filter $(TARGET_DEVICE),nx531j NX531J))
+ifeq ($(TARGET_DEVICE),$(filter $(TARGET_DEVICE),nx531j ))
 include $(CLEAR_VARS)
 
 LOCAL_MODULE_TAGS := optional

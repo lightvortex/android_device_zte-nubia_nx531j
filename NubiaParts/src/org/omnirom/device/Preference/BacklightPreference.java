@@ -38,8 +38,8 @@ public final class BacklightPreference extends SeekBarPreferenceCham {
     private static final int BACKLIGHT_MAX_BRIGHTNESS = 255;
     private static final float PROGRESS_OFFSET = BACKLIGHT_MAX_BRIGHTNESS / 100f;
 
-    private static final String FILE_LED_LEFT = "/sys/class/leds/button-backlight/max_brightness";
-    private static final String FILE_LED_RIGHT = "/sys/class/leds/button-backlight1/max_brightness";
+    private static final String FILE_LED_LEFT = "/sys/class/leds/nubia_led/brightness";
+    private static final String FILE_LED_RIGHT = "sys/class/leds/nubia_led/outn";
 
     public static KernelFeature<Integer> FEATURE = new KernelFeature<Integer>() {
 

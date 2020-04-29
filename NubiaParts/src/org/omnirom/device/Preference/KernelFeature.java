@@ -36,6 +36,6 @@ public interface KernelFeature<T> {
     boolean applyValue(T t);
 
     void applySharedPreferences(T t, SharedPreferences sp);
-
+    
     boolean restore(SharedPreferences sp);
 }
