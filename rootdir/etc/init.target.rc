@@ -42,6 +42,8 @@ on post-fs-data
     symlink /sys/bus/i2c/devices/12-0020/swap_buttons /data/tp/swap_buttons
     write /sys/bus/i2c/devices/12-0020/start_update 1
     chown system system /sys/kernel/lcd_enhance/colortmp
+    chown system system /sys/kernel/fast_charge/force_fast_charge
+    chown system system /sys/module/msm_performance/parameters/overfreq
 
 on boot
     write /proc/sys/kernel/sched_boost 1
@@ -231,6 +233,10 @@ on boot
     # add for ndt force-key by nubia
     chmod 666 dev/i2c-8
     # add end
+    
+    # For NUBIA PARTS
+    #chmod 777 /sys/kernel/fast_charge/force_fast_charge
+    #chmod 777 /sys/module/msm_performance/parameters/overfreq
 
 on property:sys.boot_mode=ffbm
     write /dev/block/bootdevice/by-name/misc "ffbm-01"
