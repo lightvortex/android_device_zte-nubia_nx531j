@@ -206,7 +206,7 @@
     
     <!-- Control whether the always on display mode is enabled by default. This value will be used
          during initialization when the setting is still null. -->
-    <bool name="config_dozeAlwaysOnEnabled">false</bool>
+    <bool name="config_dozeAlwaysOnEnabled">true</bool>
 
     <!-- Configure wifi tcp buffersizes in the form:
          rmem_min,rmem_def,rmem_max,wmem_min,wmem_def,wmem_max -->
@@ -380,9 +380,6 @@
          states. -->
     <bool name="config_dozeAlwaysOnDisplayAvailable">true</bool>
 
-    <!-- Whether the display blanks itself when transitioning from a doze to a non-doze state -->
-    <bool name="config_displayBlanksAfterDoze">true</bool>
-
     <!-- Specify custom blanking delay of the display -->
     <integer name="config_screen_off_delay">0</integer>
 
@@ -395,11 +392,13 @@
    <!-- Enable 802.11ac for Wifi hotspot (SAP) -->
    <bool translatable="false" name="config_wifi_softap_ieee80211ac_supported">true</bool>
    
-       <!-- Button backlight -->
-    <bool name="config_button_brightness_support">true</bool>
-    <bool name="config_deviceHasVariableButtonBrightness">true</bool>
+   <!-- Button backlight -->
+   <bool name="config_button_brightness_support">true</bool>
+   <bool name="config_deviceHasVariableButtonBrightness">true</bool>
 
-<!-- Whether the Unprocessed audio source supports the required frequency range and level -->
-	    <bool name="config_supportAudioSourceUnprocessed">true</bool>
+   <!-- Whether the Unprocessed audio source supports the required frequency range and level -->
+   <bool name="config_supportAudioSourceUnprocessed">true</bool>
 
+   <!-- If true, the display will be shifted around in ambient mode. -->
+   <bool name="config_enableBurnInProtection">true</bool>        
 </resources>
