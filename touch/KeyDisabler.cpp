@@ -26,7 +26,7 @@ namespace touch {
 namespace V1_0 {
 namespace implementation {
 
-constexpr const char kControlPath[] = "/data/tp/keypad_enable";
+constexpr const char kControlPath[] = "/sys/bus/i2c/devices/12-0020/0dbutton";
 
 KeyDisabler::KeyDisabler() {
     mHasKeyDisabler = !access(kControlPath, F_OK);
@@ -34,22 +34,24 @@ KeyDisabler::KeyDisabler() {
 
 // Methods from ::vendor::lineage::touch::V1_0::IKeyDisabler follow.
 Return<bool> KeyDisabler::isEnabled() {
-    std::string buf;
+    std::string controlBuf;
 
     if (!mHasKeyDisabler) return false;
 
-    if (!android::base::ReadFileToString(kControlPath, &buf)) {
+    if (!android::base::ReadFileToString(kControlPath, &controlBuf)) {
         LOG(ERROR) << "Failed to read " << kControlPath;
         return false;
     }
 
-    return std::stoi(android::base::Trim(buf)) == 1;
+    return std::stoi(android::base::Trim(controlBuf)) == 0;
 }
 
 Return<bool> KeyDisabler::setEnabled(bool enabled) {
+    std::string buf = enabled ? "0" : "1";
+
     if (!mHasKeyDisabler) return false;
 
-    if (!android::base::WriteStringToFile((enabled ? "1" : "0"), kControlPath)) {
+    if (!android::base::WriteStringToFile(buf, kControlPath)) {
         LOG(ERROR) << "Failed to write " << kControlPath;
         return false;
     }
