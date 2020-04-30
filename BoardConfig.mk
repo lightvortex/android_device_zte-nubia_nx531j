@@ -107,6 +107,11 @@ TARGET_USES_MEDIA_EXTENSIONS := true
 TARGET_USES_QTI_CAMERA_DEVICE := true
 USE_DEVICE_SPECIFIC_CAMERA := true
 
+# Legacy blob support
+TARGET_PROCESS_SDK_VERSION_OVERRIDE += \
+    /system/bin/cameraserver=23 \
+    /system/vendor/bin/mm-qcamera-daemon=23
+
 # Charger
 BOARD_CHARGER_ENABLE_SUSPEND := true
 

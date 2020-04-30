@@ -158,7 +158,7 @@ vendor/lib/libmm-qcamera.so
 vendor/lib/libmmcamera_interface.so
 vendor/lib/libmmjpeg_interface.so
 vendor/lib/libqomx_core.so
-vendor/lib/libmmcamera2_isp_modules.so
+vendor/lib/libmmcamera2_isp_modules.so|eee0b30736a453f69a41dd2d8ab532a906c08740
 
 ######################################
 # Camera
