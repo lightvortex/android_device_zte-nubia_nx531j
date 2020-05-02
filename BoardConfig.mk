@@ -107,11 +107,6 @@ TARGET_USES_MEDIA_EXTENSIONS := true
 TARGET_USES_QTI_CAMERA_DEVICE := true
 USE_DEVICE_SPECIFIC_CAMERA := true
 
-# Legacy blob support
-TARGET_PROCESS_SDK_VERSION_OVERRIDE += \
-    /system/bin/cameraserver=23 \
-    /system/vendor/bin/mm-qcamera-daemon=23
-
 # Charger
 BOARD_CHARGER_ENABLE_SUSPEND := true
 
@@ -201,7 +196,7 @@ VENDOR_SECURITY_PATCH := 2020-02-20
 
 # SELinux
 include device/qcom/sepolicy-legacy-um/sepolicy.mk
-BOARD_SEPOLICY_DIRS += $(VENDOR_PATH)/sepolicy/vendor/temp
+BOARD_SEPOLICY_DIRS += $(VENDOR_PATH)/sepolicy/vendor
 
 # Wifi
 BOARD_HAS_QCOM_WLAN := true
