@@ -30,12 +30,17 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -->
 <resources>
-    <!-- Enable doze mode -->
-    <bool name="doze_display_state_supported">true</bool>
 
-    <!-- Whether SystemUI ignores notch -->
-    <bool name="hide_view_behind_notch">true</bool>
+    <!-- Tri-state UI -->
+    <dimen name="tri_state_down_dialog_position">200.0px</dimen>
+    <dimen name="tri_state_down_dialog_position_l">0.0px</dimen>
+    <dimen name="tri_state_middle_dialog_position">110.0px</dimen>
+    <dimen name="tri_state_middle_dialog_position_l">0.0px</dimen>
+    <dimen name="tri_state_up_dialog_position">20.0px</dimen>
+    <dimen name="tri_state_up_dialog_position_l">0.0px</dimen>
+    <dimen name="tri_state_down_top_left_radius">0.0dip</dimen>
+    <dimen name="tri_state_down_top_right_radius">24.0dip</dimen>
+    <dimen name="tri_state_up_bottom_left_radius">0.0dip</dimen>
+    <dimen name="tri_state_up_bottom_right_radius">24.0dip</dimen>
 
-    <!-- Show battery icon in the QS Panel instead of in the header -->
-    <bool name="config_batteryInQSPanel">false</bool>
 </resources>
