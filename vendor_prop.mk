@@ -104,8 +104,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     vendor.display.disable_skip_validate=1 \
     vendor.display.enable_default_color_mode=1 \
     vendor.display.perf_hint_window=50 \
-    vendor.gralloc.enable_fb_ubwc=1 \
-    debug.sf.enable_gl_backpressure=1
+    vendor.gralloc.enable_fb_ubwc=1 
 
 # IMS
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -181,7 +180,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     wifi.interface=wlan0
 
 # NavBar
-#PRODUCT_PROPERTY_OVERRIDES += \
+PRODUCT_PROPERTY_OVERRIDES += \
     qemu.hw.mainkeys=1
     
 # Maintainer

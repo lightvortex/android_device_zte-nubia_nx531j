@@ -26,7 +26,7 @@ namespace touch {
 namespace V1_0 {
 namespace implementation {
 
-constexpr const char kControlPath[] = "/sys/bus/i2c/devices/12-0020/0dbutton";
+constexpr const char kControlPath[] = "/data/tp/keypad_enable";
 
 KeyDisabler::KeyDisabler() {
     mHasKeyDisabler = !access(kControlPath, F_OK);

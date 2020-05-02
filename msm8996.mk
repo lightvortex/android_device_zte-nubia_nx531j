@@ -28,7 +28,7 @@ $(call inherit-product, frameworks/native/build/phone-xhdpi-4096-dalvik-heap.mk 
 # Overlays
 DEVICE_PACKAGE_OVERLAYS += \
     $(LOCAL_PATH)/overlay \
-    $(LOCAL_PATH)/overlay-custom
+    $(LOCAL_PATH)/overlay-lineage
 
 PRODUCT_ENFORCE_RRO_TARGETS := \
     framework-res
@@ -168,8 +168,8 @@ PRODUCT_PACKAGES += \
     ueventd.qcom.rc
     
 # Dex
-#PRODUCT_DEXPREOPT_SPEED_APPS += \
-#    SystemUI
+PRODUCT_DEXPREOPT_SPEED_APPS += \
+    SystemUI
 
 # Doze
 PRODUCT_PACKAGES += \
@@ -248,7 +248,6 @@ PRODUCT_BOOT_JARS += \
 # Input
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/nubia_synaptics_dsx.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/nubia_synaptics_dsx.kl \
-    $(LOCAL_PATH)/keylayout/msm8996-tasha-mtp-snd-card_Button_Jack.kl:$(TARGET_COPY_OUT_VENDOR)/usr/keylayout/msm8996-tasha-mtp-snd-card_Button_Jack.kl
 
 # IPA Manager
 PRODUCT_PACKAGES += \
