@@ -26,12 +26,11 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 import org.omnirom.device.Preference.OCPreference;
+import org.omnirom.device.Preference.NavbarPreference;
+import org.omnirom.device.Preference.OnscreenPreference;
 import org.omnirom.device.Preference.BacklightPreference;
 import org.omnirom.device.Preference.ButtonSwapPreference;
 import org.omnirom.device.Preference.FastChargePreference;
-import org.omnirom.device.Preference.S2SVibratorStrengthPreference;
-import org.omnirom.device.Preference.SpectrumPreference;
-import org.omnirom.device.Preference.SweepToSleepPreference;
 
 public final class Startup extends BroadcastReceiver {
 
@@ -43,13 +42,10 @@ public final class Startup extends BroadcastReceiver {
 
             BacklightPreference.FEATURE.restore(sp);
             OCPreference.FEATURE.restore(sp);
+            NavbarPreference.FEATURE.restore(sp);
+            OnscreenPreference.FEATURE.restore(sp);
             ButtonSwapPreference.FEATURE.restore(sp);
             FastChargePreference.FEATURE.restore(sp);
-            SweepToSleepPreference.FEATURE.restore(sp);
-            S2SVibratorStrengthPreference.FEATURE.restore(sp);
-            SpectrumPreference.FEATURE.restore(sp);
-
-            DisplayCalibration.restore(sp);
         }
     }
 }

@@ -24,19 +24,12 @@
             android:summary="@string/oc_hw_buttons_summary"
             android:title="@string/oc_hw_buttons_title" />
     </androidx.preference.PreferenceCategory>        
-            
-    <androidx.preference.PreferenceCategory
+    
+<androidx.preference.PreferenceCategory
         android:key="display"
         android:title="@string/display_title">
-
-        <androidx.preference.Preference
-            android:fragment="org.omnirom.device.DisplayCalibration"
-            android:icon="@drawable/ic_kcal"
-            android:key="kcal"
-            android:summary="@string/kcal_summary"
-            android:title="@string/kcal_title" />
-
-        <androidx.preference.Preference
+    
+    <androidx.preference.Preference
             android:icon="@drawable/ic_doze"
             android:key="device_doze"
             android:persistent="false"
@@ -47,6 +40,19 @@
                 android:targetPackage="org.lineageos.settings.doze" />
         </androidx.preference.Preference>
     </androidx.preference.PreferenceCategory>
+            
+<!--    <androidx.preference.PreferenceCategory
+        android:key="display"
+        android:title="@string/display_title">
+
+        <androidx.preference.Preference
+            android:fragment="org.omnirom.device.DisplayCalibration"
+            android:icon="@drawable/ic_kcal"
+            android:key="kcal"
+            android:summary="@string/kcal_summary"
+            android:title="@string/kcal_title" />
+
+
 
     <androidx.preference.PreferenceCategory
         android:key="spectrum_profile"
@@ -81,7 +87,7 @@
             android:max="90"
             android:min="0"
             android:defaultValue="20"/>
-    </androidx.preference.PreferenceCategory>
+    </androidx.preference.PreferenceCategory> -->
 
     <androidx.preference.PreferenceCategory
         android:key="hw_buttons"
@@ -93,6 +99,20 @@
             android:key="buttons_swap"
             android:summary="@string/swap_hw_buttons_summary"
             android:title="@string/swap_hw_buttons_title" />
+        
+        <org.omnirom.device.Preference.NavbarPreference
+            android:defaultValue="false"
+            android:key="navbar"
+            android:summary="@string/navbar_buttons_summary"
+            android:title="@string/navbar_hardware_title" />
+
+        <org.omnirom.device.Preference.OnscreenPreference
+            android:defaultValue="1"
+            android:dialogTitle="@string/navbar_dialogTitle"
+            android:entries="@array/navbar_profiles"
+            android:entryValues="@array/navbar_values"
+            android:key="onscreen"
+            android:title="@string/navbar_onscreen_title" />
 
         <org.omnirom.device.Preference.BacklightPreference
             android:icon="@drawable/ic_led_btn"
@@ -100,9 +120,9 @@
             android:key="btn_brightness"
             android:summary="@string/btn_led_summary"
             android:title="@string/btn_led_title"
-            android:max="255"
+            android:max="100"
             android:min="0"
-            android:defaultValue="255"/>
+            android:defaultValue="50"/>
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory

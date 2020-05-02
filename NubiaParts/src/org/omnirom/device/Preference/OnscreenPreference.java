@@ -20,61 +20,62 @@ package org.omnirom.device.Preference;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.SystemProperties;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 
-import org.omnirom.device.utils.FileUtils;
-
-public final class SweepToSleepPreference extends ListPreference implements
+public final class OnscreenPreference extends ListPreference implements
         Preference.OnPreferenceChangeListener {
 
-    public static final String S2S_KEY = "sweep2sleep";
-    public static final String S2S_DEFAULT = "0";
-    private static final String FILE_S2S_TYPE = "/sys/sweep2sleep/sweep2sleep";
+    public static final String ONSCREEN_KEY = "onscreen";
+    private static final String ONSCREEN_DEFAULT_PROFILE = "0";
+    private static final String ONSCREEN_SYSTEM_PROPERTY = "qemu.hw.mainkeys";
 
     public static final KernelFeature<String> FEATURE = new KernelFeature<String>() {
 
         @Override
         public boolean isSupported() {
-            return FileUtils.isFileWritable(FILE_S2S_TYPE);
+            return !TextUtils.isEmpty(SystemProperties.get(ONSCREEN_SYSTEM_PROPERTY, null));
         }
 
         @Override
         public String getCurrentValue() {
-            return FileUtils.getFileValue(FILE_S2S_TYPE, S2S_DEFAULT);
+            return SystemProperties.get(ONSCREEN_SYSTEM_PROPERTY, ONSCREEN_DEFAULT_PROFILE);
         }
 
         @Override
         public boolean applyValue(String newValue) {
-            return FileUtils.writeValue(FILE_S2S_TYPE, newValue);
+            SystemProperties.set(ONSCREEN_SYSTEM_PROPERTY, newValue);
+            return newValue.equals(getCurrentValue());
         }
 
         @Override
         public void applySharedPreferences(String newValue, SharedPreferences sp) {
-            sp.edit().putString(S2S_KEY, newValue).apply();
+            sp.edit().putString(ONSCREEN_KEY, newValue).apply();
         }
 
         @Override
         public boolean restore(SharedPreferences sp) {
-            if (!isSupported()) return false;
+            if(!isSupported()) return false;
 
-            String value = sp.getString(S2S_KEY, S2S_DEFAULT);
+            String value = sp.getString(ONSCREEN_KEY, ONSCREEN_DEFAULT_PROFILE);
             return applyValue(value);
         }
     };
 
-    public SweepToSleepPreference(Context context, AttributeSet attrs) {
+    public OnscreenPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOnPreferenceChangeListener(this);
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        String strValue = newValue.toString();
-        if (FEATURE.applyValue(strValue))
-            FEATURE.applySharedPreferences(strValue, getSharedPreferences());
+        String value = newValue.toString();
+        if (FEATURE.applyValue(value))
+            FEATURE.applySharedPreferences(value, getSharedPreferences());
 
         return true;
     }

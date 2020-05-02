@@ -20,20 +20,20 @@
     <string name="advanced_settings_summary">Advanced</string>
 
     <string name="display_title">Display</string>
-    <string name="device_doze_title">Ambient display</string>
+    <string name="device_doze_title">Ambient Display</string>
     
     <!-- Overclock -->
     <string name="oc_title">Overclock</string>
     <string name="oc_hw_buttons_title">Enable Overclocking</string>
-    <string name="oc_hw_buttons_summary">Use this when gaming :)</string>
+    <string name="oc_hw_buttons_summary">Use This When Gaming :)</string>
     
-    <!-- s2s -->
+    <!-- s2s 
     <string name="s2s_title">Sweep to sleep</string>
     <string name="s2s_title_head">Sweep to sleep gesture</string>
     <string name="s2s_title_summary">Swipe gesture sleep at the bottom of the screen</string>
-    <string name="s2s_vib_strength_title_head">Sweep2sleep vibration</string>
+    <string name="s2s_vib_strength_title_head">Sweep2sleep vibration</string> -->
 
-    <!-- Kcal -->
+    <!-- Kcal 
     <string name="kcal_title">Display color</string>
     <string name="kcal_summary">Display color calibration using KCAL</string>
     <string name="kcal_enabled_title">Enable KCAL</string>
@@ -44,13 +44,13 @@
     <string name="kcal_saturation">Saturation</string>
     <string name="kcal_contrast">Contrast</string>
     <string name="menu_reset">Reset</string>
-    <string name="kcal_color_temp">Color temperature (K)</string>
+    <string name="kcal_color_temp">Color temperature (K)</string> -->
 
-    <!-- Spectrum Profiles -->
+    <!-- Spectrum Profiles 
     <string name="spectrum_profile_title">Kernel Profiles</string>
     <string name="spectrum_title">Kernel Profile</string>
     <string name="spectrum_summary">Choose your kernel profile</string>
-    <string name="spectrum_dialogTitle">Choose your kernel profile</string>
+    <string name="spectrum_dialogTitle">Choose your kernel profile</string> -->
 
     <!-- Swap HW buttons -->
     <string name="hw_buttons_title">Hardware buttons</string>
@@ -61,6 +61,13 @@
     <string name="btn_title">Buttons</string>
     <string name="btn_led_title">Led brightness</string>
     <string name="btn_led_summary">Adjust the led brightness of buttons</string>
+    
+    <!-- Navbar -->
+    <string name="navbar_title">Hardware Keys</string>
+    <string name="navbar_hardware_title">Enable/Disable Hardwarekeys</string>
+    <string name="navbar_onscreen_title">Enable/Disable ONscreen NAVBAR</string>
+    <string name="navbar_dialogTitle">Choose your option</string>
+    <string name="navbar_buttons_summary">Reboot might be required</string>
 
     <!-- usb fastcharge -->
     <string name="usb_fastcharge_title">USB Fastcharge</string>

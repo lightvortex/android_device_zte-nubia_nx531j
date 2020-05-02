@@ -20,60 +20,59 @@ package org.omnirom.device.Preference;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.SystemProperties;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 
-import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.SwitchPreference;
 
-public final class SpectrumPreference extends ListPreference implements
+import org.omnirom.device.utils.FileUtils;
+
+public final class NavbarPreference extends SwitchPreference implements
         Preference.OnPreferenceChangeListener {
 
-    public static final String SPECTRUM_KEY = "spectrum";
-    private static final String SPECTRUM_DEFAULT_PROFILE = "0";
-    private static final String SPECTRUM_SYSTEM_PROPERTY = "persist.spectrum.profile";
+    public static final String ENABLE_NAVBAR_KEY = "navbar";
+    private static final String ENABLE_NAVBAR_PATH = "/data/tp/keypad_enable";
+    private static final boolean ENABLE_NAVBAR_DEFAULT_VALUE = true;
 
-    public static final KernelFeature<String> FEATURE = new KernelFeature<String>() {
+    public static final KernelFeature<Boolean> FEATURE = new KernelFeature<Boolean>() {
 
         @Override
         public boolean isSupported() {
-            return !TextUtils.isEmpty(SystemProperties.get(SPECTRUM_SYSTEM_PROPERTY, null));
+            return FileUtils.isFileWritable(ENABLE_NAVBAR_PATH);
         }
 
         @Override
-        public String getCurrentValue() {
-            return SystemProperties.get(SPECTRUM_SYSTEM_PROPERTY, SPECTRUM_DEFAULT_PROFILE);
+        public Boolean getCurrentValue() {
+            return FileUtils.getFileValueAsBoolean(ENABLE_NAVBAR_PATH, false);
         }
 
         @Override
-        public boolean applyValue(String newValue) {
-            SystemProperties.set(SPECTRUM_SYSTEM_PROPERTY, newValue);
-            return newValue.equals(getCurrentValue());
+        public boolean applyValue(Boolean newValue) {
+            return FileUtils.writeValue(ENABLE_NAVBAR_PATH, newValue ? "1" : "0");
         }
 
         @Override
-        public void applySharedPreferences(String newValue, SharedPreferences sp) {
-            sp.edit().putString(SPECTRUM_KEY, newValue).apply();
+        public void applySharedPreferences(Boolean newValue, SharedPreferences sp) {
+            sp.edit().putBoolean(ENABLE_NAVBAR_KEY, newValue).apply();
         }
 
         @Override
         public boolean restore(SharedPreferences sp) {
             if(!isSupported()) return false;
 
-            String value = sp.getString(SPECTRUM_KEY, SPECTRUM_DEFAULT_PROFILE);
+            boolean value = sp.getBoolean(ENABLE_NAVBAR_KEY, ENABLE_NAVBAR_DEFAULT_VALUE);
             return applyValue(value);
         }
     };
 
-    public SpectrumPreference(Context context, AttributeSet attrs) {
+    public NavbarPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         setOnPreferenceChangeListener(this);
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        String value = newValue.toString();
+        boolean value = (Boolean) newValue;
         if (FEATURE.applyValue(value))
             FEATURE.applySharedPreferences(value, getSharedPreferences());
 
