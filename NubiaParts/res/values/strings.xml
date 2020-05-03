@@ -61,13 +61,6 @@
     <string name="btn_title">Buttons</string>
     <string name="btn_led_title">Led brightness</string>
     <string name="btn_led_summary">Adjust the led brightness of buttons</string>
-    
-    <!-- Navbar -->
-    <string name="navbar_title">Hardware Keys</string>
-    <string name="navbar_hardware_title">Enable/Disable Hardwarekeys</string>
-    <string name="navbar_onscreen_title">Enable/Disable ONscreen NAVBAR</string>
-    <string name="navbar_dialogTitle">Choose your option</string>
-    <string name="navbar_buttons_summary">Reboot might be required</string>
 
     <!-- usb fastcharge -->
     <string name="usb_fastcharge_title">USB Fastcharge</string>

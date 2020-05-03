@@ -99,20 +99,6 @@
             android:key="buttons_swap"
             android:summary="@string/swap_hw_buttons_summary"
             android:title="@string/swap_hw_buttons_title" />
-        
-        <org.omnirom.device.Preference.NavbarPreference
-            android:defaultValue="false"
-            android:key="navbar"
-            android:summary="@string/navbar_buttons_summary"
-            android:title="@string/navbar_hardware_title" />
-
-        <org.omnirom.device.Preference.OnscreenPreference
-            android:defaultValue="1"
-            android:dialogTitle="@string/navbar_dialogTitle"
-            android:entries="@array/navbar_profiles"
-            android:entryValues="@array/navbar_values"
-            android:key="onscreen"
-            android:title="@string/navbar_onscreen_title" />
 
         <org.omnirom.device.Preference.BacklightPreference
             android:icon="@drawable/ic_led_btn"

@@ -27,14 +27,10 @@ import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceScreen;
 
 import org.omnirom.device.Preference.OCPreference;
-import org.omnirom.device.Preference.OnscreenPreference;
-import org.omnirom.device.Preference.NavbarPreference;
 import org.omnirom.device.Preference.ButtonSwapPreference;
 import org.omnirom.device.Preference.FastChargePreference;
 
 import static org.omnirom.device.Preference.OCPreference.ENABLE_OC_KEY;
-import static org.omnirom.device.Preference.OnscreenPreference.ONSCREEN_KEY;
-import static org.omnirom.device.Preference.NavbarPreference.ENABLE_NAVBAR_KEY;
 import static org.omnirom.device.Preference.ButtonSwapPreference.BUTTONS_SWAP_KEY;
 import static org.omnirom.device.Preference.FastChargePreference.USB_FAST_CHARGE_KEY;
 
@@ -42,8 +38,6 @@ public final class DeviceSettings extends PreferenceFragment {
 
     private static final String KEY_CATEGORY_OC = "overclock";
     private static final String KEY_CATEGORY_HW_BUTTONS = "hw_buttons";
-    private static final String KEY_CATEGORY_NAVBAR = "navbar";
-    private static final String KEY_CATEGORY_ONSCREEN = "onscreen";
     private static final String KEY_CATEGORY_USB_FASTCHARGE = "usb_fastcharge";
 
     private final String KEY_DEVICE_DOZE = "device_doze";
@@ -56,15 +50,11 @@ public final class DeviceSettings extends PreferenceFragment {
         PreferenceScreen prefSet = getPreferenceScreen();
         
         OCPreference mOC = (OCPreference) prefSet.findPreference(ENABLE_OC_KEY);
-        NavbarPreference mNavbar = (NavbarPreference) prefSet.findPreference(ENABLE_NAVBAR_KEY);
-        OnscreenPreference mOnscreen = (OnscreenPreference) prefSet.findPreference(ONSCREEN_KEY);
         ButtonSwapPreference mButtonSwap = (ButtonSwapPreference) prefSet.findPreference(BUTTONS_SWAP_KEY);
         FastChargePreference mFastCharge = (FastChargePreference) findPreference(USB_FAST_CHARGE_KEY);
 
 
         mOC.setEnabled(OCPreference.FEATURE.isSupported());
-        mOnscreen.setEnabled(OnscreenPreference.FEATURE.isSupported());
-        mNavbar.setEnabled(NavbarPreference.FEATURE.isSupported());
         mButtonSwap.setEnabled(ButtonSwapPreference.FEATURE.isSupported());
         mFastCharge.setEnabled(FastChargePreference.FEATURE.isSupported());
     }
