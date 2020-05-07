@@ -1,0 +1,7 @@
+* Make Auto Brightness smooth
+* Fix statusbar brightness toggle 
+* Update dpm and CNE from daisy Q
+* Set selinux:Enfocing
+* Nuke time service
+* Fix thermal throttling
+* Set CPU gov to schedutil 
