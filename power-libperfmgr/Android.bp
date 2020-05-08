@@ -14,7 +14,7 @@
 // limitations under the License.
 
 cc_library_headers {
-    name: "pixel_power_headers",
+    name: "nubia_power_headers",
     vendor_available: true,
     export_include_dirs: ["."],
 }
@@ -23,8 +23,7 @@ cc_binary {
     name: "android.hardware.power@1.3-service.nubia-libperfmgr",
     relative_install_path: "hw",
     init_rc: ["android.hardware.power@1.3-service.nubia-libperfmgr.rc"],
-    srcs: ["service.cpp", "Power.cpp", "InteractionHandler.cpp",
-            "display-helper.cpp", "power-helper.c"],
+    srcs: ["service.cpp", "Power.cpp", "InteractionHandler.cpp"],
     cflags: [
         "-Wall",
         "-Werror",
@@ -32,6 +31,7 @@ cc_binary {
     shared_libs: [
         "libbase",
         "libhidlbase",
+        "libhidltransport",
         "liblog",
         "libutils",
         "libcutils",

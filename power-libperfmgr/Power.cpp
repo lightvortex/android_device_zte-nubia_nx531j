@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#define ATRACE_TAG (ATRACE_TAG_POWER | ATRACE_TAG_HAL)
 #define LOG_TAG "android.hardware.power@1.3-service.nubia-libperfmgr"
 
 #include <android-base/file.h>
@@ -22,34 +23,17 @@
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
 
+#include <mutex>
+
 #include <utils/Log.h>
 #include <utils/Trace.h>
 
 #include "AudioStreaming.h"
 #include "Power.h"
-#include "display-helper.h"
-#include "power-helper.h"
-
-/* RPM runs at 19.2Mhz. Divide by 19200 for msec */
-#define RPM_CLK 19200
 
 #ifndef TAP_TO_WAKE_NODE
-#define TAP_TO_WAKE_NODE "/sys/touchpanel/double_tap"
+#define TAP_TO_WAKE_NODE "/sys/bus/i2c/devices/12-0020/wake_gesture"
 #endif
-
-#ifndef TAP_TO_WAKE_NODE2
-#define TAP_TO_WAKE_NODE2 "/proc/touchscreen/enable_dt2w"
-#endif
-
-#ifndef TAP_TO_WAKE_NODE3
-#define TAP_TO_WAKE_NODE3 "/proc/touchpanel/wake_gesture"
-#endif
-
-#ifndef TAP_TO_WAKE_NODE4
-#define TAP_TO_WAKE_NODE4 "/proc/tp_gesture"
-#endif
-
-extern struct stat_pair rpm_stat_map[];
 
 namespace android {
 namespace hardware {
@@ -61,10 +45,7 @@ using ::android::hardware::hidl_vec;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
 using ::android::hardware::power::V1_0::Feature;
-using ::android::hardware::power::V1_0::PowerStatePlatformSleepState;
 using ::android::hardware::power::V1_0::Status;
-using ::android::hardware::power::V1_1::PowerStateSubsystem;
-using ::android::hardware::power::V1_1::PowerStateSubsystemSleepState;
 
 constexpr char kPowerHalStateProp[] = "vendor.powerhal.state";
 constexpr char kPowerHalAudioProp[] = "vendor.powerhal.audio";
@@ -160,6 +141,7 @@ Return<void> Power::powerHint(PowerHint_1_0 hint, int32_t data) {
     if (!mReady) {
         return Void();
     }
+    ATRACE_INT(android::hardware::power::V1_0::toString(hint).c_str(), data);
     ALOGD_IF(hint != PowerHint_1_0::INTERACTION, "%s: %d",
              android::hardware::power::V1_0::toString(hint).c_str(), static_cast<int>(data));
     switch (hint) {
@@ -219,13 +201,7 @@ Return<void> Power::powerHint(PowerHint_1_0 hint, int32_t data) {
             }
             break;
         case PowerHint_1_0::LOW_POWER:
-            if (data) {
-                // Device in battery saver mode, enable display low power mode
-                set_display_lpm(true);
-            } else {
-                // Device exiting battery saver mode, disable display low power mode
-                set_display_lpm(false);
-            }
+	    // Nothing to do
             break;
         default:
             break;
@@ -238,9 +214,6 @@ Return<void> Power::setFeature(Feature feature, bool activate)  {
 #ifdef TAP_TO_WAKE_NODE
         case Feature::POWER_FEATURE_DOUBLE_TAP_TO_WAKE:
             ::android::base::WriteStringToFile(activate ? "1" : "0", TAP_TO_WAKE_NODE, true);
-            ::android::base::WriteStringToFile(activate ? "1" : "0", TAP_TO_WAKE_NODE2, true);
-            ::android::base::WriteStringToFile(activate ? "1" : "0", TAP_TO_WAKE_NODE3, true);
-            ::android::base::WriteStringToFile(activate ? "1" : "0", TAP_TO_WAKE_NODE4, true);
             break;
 #endif
         default:
@@ -250,59 +223,15 @@ Return<void> Power::setFeature(Feature feature, bool activate)  {
 }
 
 Return<void> Power::getPlatformLowPowerStats(getPlatformLowPowerStats_cb _hidl_cb) {
-
-    hidl_vec<PowerStatePlatformSleepState> states;
-    uint64_t stats[MAX_PLATFORM_STATS * MAX_RPM_PARAMS] = {0};
-    uint64_t *values;
-    struct PowerStatePlatformSleepState *state;
-    int ret;
-
-    states.resize(PLATFORM_SLEEP_MODES_COUNT);
-
-    ret = extract_platform_stats(stats);
-    if (ret != 0) {
-        states.resize(0);
-        goto done;
-    }
-
-    /* Update statistics for XO_shutdown */
-    state = &states[RPM_MODE_XO];
-    state->name = "XO_shutdown";
-    values = stats + (RPM_MODE_XO * MAX_RPM_PARAMS);
-
-    state->residencyInMsecSinceBoot = values[1];
-    state->totalTransitions = values[0];
-    state->supportedOnlyInSuspend = false;
-    state->voters.resize(XO_VOTERS);
-    for(size_t i = 0; i < XO_VOTERS; i++) {
-        int voter = static_cast<int>(i + XO_VOTERS_START);
-        state->voters[i].name = rpm_stat_map[voter].label;
-        values = stats + (voter * MAX_RPM_PARAMS);
-        state->voters[i].totalTimeInMsecVotedForSinceBoot = values[0] / RPM_CLK;
-        state->voters[i].totalNumberOfTimesVotedSinceBoot = values[1];
-    }
-
-    /* Update statistics for VMIN state */
-    state = &states[RPM_MODE_VMIN];
-    state->name = "VMIN";
-    values = stats + (RPM_MODE_VMIN * MAX_RPM_PARAMS);
-
-    state->residencyInMsecSinceBoot = values[1];
-    state->totalTransitions = values[0];
-    state->supportedOnlyInSuspend = false;
-    state->voters.resize(VMIN_VOTERS);
-    //Note: No filling of state voters since VMIN_VOTERS = 0
-
-done:
-    _hidl_cb(states, Status::SUCCESS);
+    LOG(ERROR) << "getPlatformLowPowerStats not supported. Use IPowerStats HAL.";
+    _hidl_cb({}, Status::SUCCESS);
     return Void();
 }
 
 // Methods from ::android::hardware::power::V1_1::IPower follow.
 Return<void> Power::getSubsystemLowPowerStats(getSubsystemLowPowerStats_cb _hidl_cb) {
-    hidl_vec<PowerStateSubsystem> subsystems;
-    subsystems.resize(0);
-    _hidl_cb(subsystems, Status::SUCCESS);
+    LOG(ERROR) << "getSubsystemLowPowerStats not supported. Use IPowerStats HAL.";
+    _hidl_cb({}, Status::SUCCESS);
     return Void();
 }
 
@@ -317,6 +246,7 @@ Return<void> Power::powerHintAsync_1_2(PowerHint_1_2 hint, int32_t data) {
         return Void();
     }
 
+    ATRACE_INT(android::hardware::power::V1_2::toString(hint).c_str(), data);
     ALOGD_IF(hint >= PowerHint_1_2::AUDIO_STREAMING, "%s: %d",
              android::hardware::power::V1_2::toString(hint).c_str(), static_cast<int>(data));
 
@@ -416,6 +346,7 @@ Return<void> Power::powerHintAsync_1_3(PowerHint_1_3 hint, int32_t data) {
     }
 
     if (hint == PowerHint_1_3::EXPENSIVE_RENDERING) {
+        ATRACE_INT(android::hardware::power::V1_3::toString(hint).c_str(), data);
         if (mVRModeOn || mSustainedPerfModeOn) {
             ALOGV("%s: ignoring due to other active perf hints", __func__);
         } else {
