@@ -1,1 +1,2 @@
 allow thermal-engine sysfs_batteryinfo:dir search;
+allow thermal-engine sysfs:file { open  read };

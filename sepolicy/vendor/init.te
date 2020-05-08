@@ -1,2 +1,6 @@
 allow init adsprpcd_file:filesystem { mount relabelfrom relabelto };
 allow init debugfs:file write;
+allow init init:socket { read };
+allow init ion_device:chr_file { ioctl  open  read };
+allow init system_server:binder { call };
+allow init tee_device:chr_file { ioctl };
