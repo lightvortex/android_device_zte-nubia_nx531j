@@ -422,16 +422,23 @@
          The brightness values must be between 0 and 255 and be non-decreasing.
          This must be overridden in platform specific overlays -->
     <integer-array name="config_autoBrightnessLcdBacklightValues">
+        <item>2</item>
         <item>3</item>
-        <item>7</item>
-        <item>11</item>
-        <item>26</item>
-        <item>60</item>
-        <item>108</item>
-        <item>175</item>
-        <item>255</item>
+        <item>5</item>
+        <item>13</item>
+        <item>30</item>
+        <item>54</item>
+        <item>87</item>
+        <item>127</item>
     </integer-array>
 
+    <!-- The maximum range of gamma adjustment possible using the screen
+         auto-brightness adjustment setting. -->
+    <fraction name="config_autoBrightnessAdjustmentMaxGamma">300%</fraction>
+
+    <!-- Period of time in which to consider light samples in milliseconds. -->
+    <integer name="config_autoBrightnessAmbientLightHorizon">10000</integer>
+    
     <!-- Screen brightness used to dim the screen when the user activity
          timeout expires.  May be less than the minimum allowed brightness setting
          that can be set by the user. -->
