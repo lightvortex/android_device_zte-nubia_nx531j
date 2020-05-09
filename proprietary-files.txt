@@ -662,6 +662,7 @@ vendor/lib64/lib-rtpdaemoninterface.so|701f052844ec8885f415fb960c639a0781712909
 vendor/lib64/lib-rtpsl.so|bddbc043783d053f65ad269e37b870fef775dbed
 vendor/lib64/lib-uceservice.so|d5c553f988dde87b9be98dbb86831a7ad53864de
 vendor/lib64/vendor.qti.imsrtpservice@1.0-service-Impl.so|f6113715ce15dd8c1400d8017e0e033b75e0faf3
+vendor/lib64/vendor.qti.ims.rcsconfig@1.0.so
 vendor/lib64/vendor.qti.imsrtpservice@1.0_vendor.so|69fb684c93b6bf7febb3ed45486e8fa9643d65da
 
 ######################################
