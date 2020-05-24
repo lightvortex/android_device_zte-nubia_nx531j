@@ -138,5 +138,12 @@
                 android:targetPackage="org.xiaomi.dirac" />
         </androidx.preference.Preference>
     </androidx.preference.PreferenceCategory>
+    
+    <androidx.preference.PreferenceCategory
+        android:title="@string/about_title">
+        <androidx.preference.Preference
+        android:summary="@string/about">
+        </androidx.preference.Preference>
+    </androidx.preference.PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>

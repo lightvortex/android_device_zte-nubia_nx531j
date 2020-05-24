@@ -15,9 +15,9 @@
 -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">Advanced Setting</string>
-    <string name="advanced_settings">Advanced Setting</string>
-    <string name="advanced_settings_summary">Advanced</string>
+    <string name="app_name">Nubia Setting</string>
+    <string name="advanced_settings">Nubia Setting</string>
+    <string name="advanced_settings_summary">Make Z11 Great again</string>
 
     <string name="display_title">Display</string>
     <string name="device_doze_title">Ambient Display</string>
@@ -76,5 +76,8 @@
     <string name="seekbar_no_default_value">No default value set</string>
     <string name="seekbar_default_value_set">Value set to default of <xliff:g id="number">%d</xliff:g></string>
     <string name="seekbar_default_value_already_set">Default value is already set</string>
-
+    
+    <!-- about section -->
+    <string name="about_title">About</string>
+    <string name="about">Brought to you by Lightvortex and DazzWorld</string>
 </resources>
