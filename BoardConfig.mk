@@ -177,7 +177,6 @@ TARGET_COPY_OUT_VENDOR := vendor
 # Treble
 BOARD_PROPERTY_OVERRIDES_SPLIT_ENABLED := true
 PRODUCT_FULL_TREBLE_OVERRIDE := true
-BOARD_VNDK_VERSION := current
 
 # Power
 TARGET_TAP_TO_WAKE_NODE := "/sys/bus/i2c/devices/12-0020/wake_gesture"
