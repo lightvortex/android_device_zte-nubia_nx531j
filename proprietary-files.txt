@@ -132,7 +132,7 @@ vendor/etc/camera/imx298_ois_chromatix.xml
 ######################################
 # camera hal - mokee
 ######################################
-vendor/lib/libmmcamera2_isp_modules.so|eee0b30736a453f69a41dd2d8ab532a906c08740
+vendor/lib/libmmcamera2_isp_modules.so
 
 ######################################
 # Camera
