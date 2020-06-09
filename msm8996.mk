@@ -236,8 +236,8 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/gps/etc/xtwifi.conf:$(TARGET_COPY_OUT_VENDOR)/etc/xtwifi.conf
 
 # Lineage hardware
-PRODUCT_PACKAGES += \
-    vendor.lineage.touch@1.0-service.nx531j
+#PRODUCT_PACKAGES += \
+#    vendor.lineage.touch@1.0-service.nx531j
 
 # Healthd
 PRODUCT_PACKAGES += \
