@@ -443,7 +443,7 @@ service time_daemon /vendor/bin/time_daemon
     writepid /dev/cpuset/system-background/tasks
 
 #start camera server as daemon
-service qcamerasvr /system/vendor/bin/mm-qcamera-daemon
+service qcamerasvr /vendor/bin/mm-qcamera-daemon
     class late_start
     user camera
     group camera system inet input graphics
@@ -475,7 +475,7 @@ service charger /charger
     group system graphics
     seclabel u:r:charger:s0
 
-service thermal-engine /system/vendor/bin/thermal-engine -c ${sys.qcom.thermalcfg:-/vendor/etc/thermal-engine-8996.conf}
+service thermal-engine /vendor/bin/thermal-engine -c ${sys.qcom.thermalcfg:-/vendor/etc/thermal-engine-8996.conf}
    class main
    user root
    socket thermal-send-client stream 0666 system system
