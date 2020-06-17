@@ -51,34 +51,35 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.-->
         <boolean name="show_cdma_choices_bool" value="true" />
         <boolean name="allow_video_call_in_low_battery" value="true" />
         <boolean name="config_enable_display_14digit_imei" value="false" />
-        <!-- Determines whether UI extensions for video calls should be used or not -->
         <boolean name="video_call_use_ext" value="true" />
-        <!-- Determines if a customized video ui support is required or not -->
         <boolean name="use_custom_video_ui" value="false" />
         <boolean name="config_hide_preview_in_vt_confcall" value="false" />
         <boolean name="config_carrier_cs_retry_available" value="false" />
-        <!-- Controls modify call capabilities
-             FALSE - default capabilities will be retained
-             TRUE - remove modify call capabilities which will hide modify call button -->
         <boolean name="remove_modify_call_capability" value="false" />
-        <!-- Config to show/hide Video quality toast -->
-        <boolean name="show_video_quality_toast" value="true"/>
-        <!-- Config to show/hide call session event toast like player start/stop -->
-        <boolean name="show_call_session_event_toast" value="true"/>
-        <!-- Config to show/hide data usage toast -->
-        <boolean name="show_data_usage_toast" value="true"/>
-
+        <boolean name="show_video_quality_toast" value="true" />
+        <boolean name="show_call_session_event_toast" value="true" />
+        <boolean name="show_data_usage_toast" value="true" />
         <boolean name="show_apn_setting_cdma_bool" value="true" />
         <boolean name="support_video_conference_call_bool" value="true" />
         <boolean name="show_static_image_ui" value="false" />
         <boolean name="transmit_static_image" value="false" />
         <boolean name="show_video_quality_ui" value="false" />
         <boolean name="vowifi_call_quality" value="false" />
-        <boolean name="config_carrier_ims_call_deflect" value="false" />
+        <boolean name="carrier_allow_deflect_ims_call_bool" value="false" />
         <boolean name="carrier_rtt_supported" value="false" />
+        <boolean name="carrier_rtt_auto_upgrade" value="false" />
         <boolean name="carrier_rtt_supported_on_vtcalls" value="false" />
         <boolean name="carrier_rtt_upgrade_supported" value="false" />
         <boolean name="carrier_rtt_downgrade_supported" value="false" />
+        <boolean name="emergency_sms_support_bool" value="false" />
+        <!-- HD/VOLTE icon support -->
+        <boolean name="config_update_service_status" value="false"/>
+        <boolean name="config_update_volte_icon" value="false"/>
+
+        <!-- show for all -->
+        <boolean name="carrier_volte_available_bool" value="true" />
+        <boolean name="carrier_vt_available_bool" value="true" />
+        <boolean name="carrier_wfc_ims_available_bool" value="true" />
     </carrier_config>
 
     <carrier_config mcc="204" mnc="04">
