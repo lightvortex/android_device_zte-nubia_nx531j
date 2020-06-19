@@ -143,6 +143,7 @@ on post-fs-data
     mkdir /dev/socket/location/xtra 0770 gps gps
 
     # SSC/SLPI sensors
+    # for backward compatibility
     mkdir /persist/sensors
     chown root system /persist/sensors
     chmod 0775 /persist/sensors
@@ -150,6 +151,14 @@ on post-fs-data
     chmod 0664 /persist/sensors/sensors_settings
     chown root system /persist/sensors/sns.reg
     chmod 0664 /persist/sensors/sns.reg
+    
+    mkdir /mnt/vendor/persist/sensors
+    chown root system /mnt/vendor/persist/sensors
+    chmod 0775 /mnt/vendor/persist/sensors
+    chown root system /mnt/vendor/persist/sensors/sensors_settings
+    chmod 0664 /mnt/vendor/persist/sensors/sensors_settings
+    chown root system /mnt/vendor/persist/sensors/sns.reg
+    chmod 0664 /mnt/vendor/persist/sensors/sns.reg
 
     # /dev/sensors only supports an ioctl to get the current SLPI timestamp;
     # allow the sensors daemon to perform this as non-root
