@@ -4,3 +4,20 @@ cc_library {
     shared_libs: ["libbase"],
     vendor: true
 }
+// Camera
+cc_library_shared {
+    name: "libcamshim",
+    proprietary: true,
+    defaults: ["hidl_defaults"],
+    srcs: [
+        "camera.cpp",
+    ],
+    cflags: [
+        "-Werror",
+        "-Wextra",
+        "-Wall",
+    ],
+    shared_libs: [
+        "libutils",
+    ],
+}
