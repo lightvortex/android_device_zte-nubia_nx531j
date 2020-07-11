@@ -153,6 +153,8 @@ PRODUCT_PACKAGES += \
     android.hardware.camera.provider@2.4-impl \
     android.hardware.camera.provider@2.4-service \
     android.frameworks.displayservice@1.0 \
+    android.hardware.camera.common@1.0 \
+    android.hardware.camera.common@1.0-helper \
     camera.msm8996 \
     Snap \
     libmm-qcamera
