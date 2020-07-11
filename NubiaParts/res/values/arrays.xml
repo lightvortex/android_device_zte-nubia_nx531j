@@ -35,4 +35,14 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+    
+    <!-- Onscreen -->
+    <string-array name="camera_profiles">
+        <item>disabled</item>
+        <item>Restart</item>
+    </string-array>
+    <string-array name="camera_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 </resources>

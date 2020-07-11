@@ -27,16 +27,19 @@ import androidx.preference.PreferenceFragment;
 import androidx.preference.PreferenceScreen;
 
 import org.omnirom.device.Preference.OCPreference;
+import org.omnirom.device.Preference.CameraPreference;
 import org.omnirom.device.Preference.ButtonSwapPreference;
 import org.omnirom.device.Preference.FastChargePreference;
 
 import static org.omnirom.device.Preference.OCPreference.ENABLE_OC_KEY;
+import static org.omnirom.device.Preference.CameraPreference.RESTART_CAMERA_KEY;
 import static org.omnirom.device.Preference.ButtonSwapPreference.BUTTONS_SWAP_KEY;
 import static org.omnirom.device.Preference.FastChargePreference.USB_FAST_CHARGE_KEY;
 
 public final class DeviceSettings extends PreferenceFragment {
 
     private static final String KEY_CATEGORY_OC = "overclock";
+    private static final String KEY_CATEGORY_CAMERA = "Camera";
     private static final String KEY_CATEGORY_HW_BUTTONS = "hw_buttons";
     private static final String KEY_CATEGORY_USB_FASTCHARGE = "usb_fastcharge";
 
@@ -50,11 +53,13 @@ public final class DeviceSettings extends PreferenceFragment {
         PreferenceScreen prefSet = getPreferenceScreen();
         
         OCPreference mOC = (OCPreference) prefSet.findPreference(ENABLE_OC_KEY);
+        CameraPreference mCamera = (CameraPreference) prefSet.findPreference(RESTART_CAMERA_KEY);
         ButtonSwapPreference mButtonSwap = (ButtonSwapPreference) prefSet.findPreference(BUTTONS_SWAP_KEY);
         FastChargePreference mFastCharge = (FastChargePreference) findPreference(USB_FAST_CHARGE_KEY);
 
 
         mOC.setEnabled(OCPreference.FEATURE.isSupported());
+        mCamera.setEnabled(CameraPreference.FEATURE.isSupported());
         mButtonSwap.setEnabled(ButtonSwapPreference.FEATURE.isSupported());
         mFastCharge.setEnabled(FastChargePreference.FEATURE.isSupported());
     }

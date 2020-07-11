@@ -27,6 +27,13 @@
     <string name="oc_hw_buttons_title">Enable Overclocking</string>
     <string name="oc_hw_buttons_summary">Use This When Gaming :)</string>
     
+    <!-- Camera -->
+    <string name="camera_title">Camera</string>
+    <string name="camera_reset_title">Camera Reset</string>
+    <string name="camera_reset_summary">This resets the camera server if your camera blackscreens</string>
+    <string name="camera_reset_hint">restarting camera server...</string>
+    <string name="camera_reset_launcher_name">CamReset</string>
+    
     <!-- s2s 
     <string name="s2s_title">Sweep to sleep</string>
     <string name="s2s_title_head">Sweep to sleep gesture</string>

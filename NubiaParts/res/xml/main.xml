@@ -25,7 +25,21 @@
             android:title="@string/oc_hw_buttons_title" />
     </androidx.preference.PreferenceCategory>        
     
-<androidx.preference.PreferenceCategory
+    <androidx.preference.PreferenceCategory
+        android:key="Camera"
+        android:title="@string/camera_title">
+        <org.omnirom.device.Preference.CameraPreference
+            android:key="key_camera_restart"
+            android:defaultValue="0"
+            android:dialogTitle="@string/camera_reset_launcher_name"
+            android:entries="@array/camera_profiles"
+            android:entryValues="@array/camera_values"
+            android:icon="@drawable/ic_camera_alt_black_48dp"
+            android:title="@string/camera_reset_title"
+            android:summary="@string/camera_reset_summary" />
+    </androidx.preference.PreferenceCategory>
+    
+    <androidx.preference.PreferenceCategory
         android:key="display"
         android:title="@string/display_title">
     

@@ -63,6 +63,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.camera.stats.test=5 \
     camera.disable_zsl_mode=1 \
     persist.vendor.camera.HAL3.enabled=1 \
+    persist.camera.nx531j.restart=0 \
     persist.camera.gyro.disable=0
 
 # Hal1 

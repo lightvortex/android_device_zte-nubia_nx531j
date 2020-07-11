@@ -270,3 +270,9 @@ on property:persist.gesture.swapbuttons=*
 
 on property:persist.gesture.palmsleep=*
     write /sys/bus/i2c/devices/12-0020/palm_sleep ${persist.gesture.palmsleep}
+
+#Restart Camera in Nubia Settings
+on property:persist.camera.nx531j.restart=1
+    restart qcamerasvr
+    restart vendor.camera-provider-2-4
+    setprop persist.camera.nx531j.restart 0
