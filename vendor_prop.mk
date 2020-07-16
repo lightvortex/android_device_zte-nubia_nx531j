@@ -105,6 +105,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.demo.hdmirotationlock=false \
     persist.hwc.enable_vds=1 \
     persist.sys.wfd.virtual=0 \
+    persist.sys.wfd.nohdcp=1 \
+    persist.debug.wfd.enable=1 \
+    vendor.gralloc.disable_wb_ubwc=1 \
     ro.opengles.version=196610 \
     ro.sf.lcd_density=480 \
     vendor.display.disable_rotator_split=1 \
@@ -184,10 +187,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # USB
 PRODUCT_PROPERTY_OVERRIDES += \
     sys.usb.controller=6a00000.dwc3
-
-# WFD
-PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.wfd.virtual=0
 
 # Wifi
 PRODUCT_PROPERTY_OVERRIDES += \
