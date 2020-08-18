@@ -68,8 +68,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Hal1 
 PRODUCT_PROPERTY_OVERRIDES += \
-    camera.hal1.packagelist=com.whatsapp,com.android.camera,com.android.camera2 \
-    vendor.camera.hal1.packagelist= com.whatsapp,com.android.camera,com.android.camera2
+    camera.hal1.packagelist= com.android.camera,com.android.camera2 \
+    vendor.camera.hal1.packagelist= com.android.camera,com.android.camera2
 
 # CNE
 PRODUCT_PROPERTY_OVERRIDES += \
