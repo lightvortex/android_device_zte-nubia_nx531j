@@ -33,10 +33,10 @@ chown -L system.system /proc/touchpanel/capacitive_keys_enable
 
 chmod g+w -R /data/vendor/radio/modem_config/*
 rm -rf /data/vendor/radio/modem_config/*
-cp -rf /system/vendor/mbn/* /data/vendor/radio/modem_config/
+cp -rf /vendor/mbn/* /data/vendor/radio/modem_config/
 chown -hR radio.root /data/vendor/radio/modem_config/*
-if [ -f /system/vendor/mbn/mbn_ota.txt ] && [ ! -f /data/vendor/radio/modem_config/mbn_ota.txt ]; then
-    cp /system/vendor/mbn/mbn_ota.txt /data/vendor/radio/modem_config/
+if [ -f /vendor/mbn/mbn_ota.txt ] && [ ! -f /data/vendor/radio/modem_config/mbn_ota.txt ]; then
+    cp /vendor/mbn/mbn_ota.txt /data/vendor/radio/modem_config/
     chown radio.root /data/vendor/radio/modem_config/mbn_ota.txt
 fi
 
