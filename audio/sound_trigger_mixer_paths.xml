@@ -46,7 +46,7 @@
     <ctl name="LSM8 Port" value="None" />
     <ctl name="SLIMBUS_5_TX LSM Function" value="None" />
     <ctl name="MADONOFF Switch" value="0" />
-    <ctl name="MAD Input" value="ADC1" />
+    <ctl name="MAD Input" value="DMIC1" />
     <ctl name="MAD_BROADCAST Switch" value="0" />
     <ctl name="TX13 INP MUX" value="CDC_DEC_5" />
     <ctl name="AIF4_MAD Mixer SLIM TX12" value="0" />
@@ -103,7 +103,7 @@
         <ctl name="MADONOFF Switch" value="1" />
         <ctl name="TX13 INP MUX" value="CPE_TX_PP" />
         <ctl name="AIF4_MAD Mixer SLIM TX13" value="1" />
-        <ctl name="MAD Input" value="ADC1" />
+        <ctl name="MAD Input" value="DMIC0" />
         <ctl name="CPE AFE MAD Enable" value="1"/>
     </path>
 
@@ -118,7 +118,7 @@
     <path name="listen-cpe-handset-mic low-speed-intf">
         <ctl name="MADONOFF Switch" value="1" />
         <ctl name="AIF4_MAD Mixer SLIM TX12" value="1" />
-        <ctl name="MAD Input" value="ADC1" />
+        <ctl name="MAD Input" value="DMIC0" />
         <ctl name="CPE AFE MAD Enable" value="1"/>
     </path>
 
@@ -126,7 +126,7 @@
         <ctl name="MAD_BROADCAST Switch" value="1" />
         <ctl name="TX13 INP MUX" value="MAD_BRDCST" />
         <ctl name="AIF4_MAD Mixer SLIM TX13" value="1" />
-        <ctl name="MAD Input" value="ADC1" />
+        <ctl name="MAD Input" value="DMIC0" />
     </path>
 
 </mixer>
