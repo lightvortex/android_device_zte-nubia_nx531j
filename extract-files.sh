@@ -46,6 +46,7 @@ function blob_fixup() {
     # Patch RIL blobs for VNDK
     vendor/lib64/lib-dplmedia.so)
         patchelf --remove-needed "libmedia.so" "${2}"
+        ;;
         
     # Patch Camera blobs for VNDK
     vendor/lib/libmmcamera2_stats_modules.so)
